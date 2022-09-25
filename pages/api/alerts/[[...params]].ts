@@ -4,6 +4,7 @@ import {
   createTranslatedAlert,
   getTranslatedAlertByAlertRef,
   translate,
+  urlAlertsSummary,
 } from '../../../services'
 
 class AlertsHandler {
@@ -31,6 +32,13 @@ class AlertsHandler {
     }
     return alerts
   }
+
+  @Get('/summary')
+  async urlAlertsSummary(@Query('url') url: string) {
+    const { alertsSummary } = await urlAlertsSummary(url)
+    return alertsSummary
+  }
+
 }
 
 export default createHandler(AlertsHandler)

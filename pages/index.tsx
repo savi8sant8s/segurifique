@@ -6,7 +6,8 @@ export default function Home() {
   const [url, setUrl] = useState('')
   const [scanId, setScanId] = useState('')
   const [progress, setProgress] = useState('')
-  const [alerts, setAlerts] = useState([])
+  const [summary, setSummary] = useState<any>({})
+  const [alerts, setAlerts] = useState<any>([])
   const intervalRef = useRef<number | null>(null)
 
   const startScan = async () => {
@@ -21,6 +22,9 @@ export default function Home() {
   const stopScan = async () => {
     axios.put(`/api/scan/stop/${scanId}`).then(() => {
       setScanId('')
+      setProgress('')
+      setSummary(null)
+      setUrl('')
     })
   }
 
@@ -29,8 +33,15 @@ export default function Home() {
       setProgress(res.data.status)
       if (res.data.status === '100' && intervalRef.current) {
         window.clearInterval(intervalRef.current)
+        await getAlertsSummary(url)
         await getAlerts(url)
       }
+    })
+  }
+
+  const getAlertsSummary = async (url: string) => {
+    axios.get(`/api/alerts/summary?url=${url}`).then((res) => {
+      setSummary(res.data)
     })
   }
 
@@ -58,14 +69,25 @@ export default function Home() {
         </div>
       )}
       {progress === '100' && (
-        <div>
-          <p>Alertas</p>
-          <ul>
-            {alerts.map((alert: any, index: number) => (
-              <li key={index}>{alert.name}</li>
-            ))}
-          </ul>
-        </div>
+        <>
+          <div>
+            <p>Resumo de vulnerabilidades:</p>
+            <ul>
+              <li>Alta: {summary?.High}</li>
+              <li>Média: {summary?.Medium}</li>
+              <li>Baixa: {summary?.Low}</li>
+              <li>Informacional: {summary?.Informational}</li>
+            </ul>
+          </div>
+          <div>
+            <p>Vulnerabilidades</p>
+            <ul>
+              {alerts.map((alert: any) => (
+                <li key={alert.id}>{alert.name}</li>
+              ))}
+            </ul>
+          </div>
+        </>
       )}
     </div>
   )

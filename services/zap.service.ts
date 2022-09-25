@@ -48,3 +48,12 @@ export async function urlAlerts(url: string) {
   })
   return response.data
 }
+
+export async function urlAlertsSummary(url: string) {
+  const response = await axios_.get(`/JSON/alert/view/alertsSummary`, {
+    params: {
+      url,
+    },
+  })
+  return response.data
+}
