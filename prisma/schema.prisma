@@ -7,16 +7,17 @@ datasource db {
   url      = "file:./dev.db"
 }
 
-model TranslatedAlerts {
+model TranslatedAlert {
   id           Int      @id @default(autoincrement())
   createdAt    DateTime @default(now())
   alert        String   
   alertRef     String   @unique
   description  String
   solution     String
+  name         String
 }
 
-model WhitelistUrls {
+model Whitelist {
   id           Int      @id @default(autoincrement())
   createdAt    DateTime @default(now())
   url          String   @unique
