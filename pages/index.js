@@ -7,7 +7,7 @@ export default function Home() {
 
   const handleSubmit = async () => {
     axios.get(`/api/scan?url=${url}`).then((res) => {
-      console.log(res);
+      console.log(res.data)
     })
   }
 

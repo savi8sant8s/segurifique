@@ -5,6 +5,4 @@ const zapOptions = {
   proxy: process.env.ZAP_PROXY,
 };
  
-const zaproxy = new ZapClient(zapOptions);
-
-export default zaproxy
+export const zaproxy = new ZapClient(zapOptions);

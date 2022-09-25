@@ -1,0 +1,24 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model TranslatedAlerts {
+  id           Int      @id @default(autoincrement())
+  createdAt    DateTime @default(now())
+  alert        String   
+  alertRef     String   @unique
+  description  String
+  solution     String
+}
+
+model WhitelistUrls {
+  id           Int      @id @default(autoincrement())
+  createdAt    DateTime @default(now())
+  url          String   @unique
+  description  String
+}

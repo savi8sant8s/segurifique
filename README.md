@@ -1,34 +1,26 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## Tradutor de mensagens
+--------
+- Executar: pip install libretranslate (para instalar a biblioteca de tradução)
+- Executar: libretranslate --load-only=en,pt (para rodar o servidor de tradução e baixar apenas os pacotes de idiomas en e pt)
 
-## Getting Started
+Obs.: Libre Translate roda na porta 5000
 
-First, run the development server:
+## Verificador de vulnerabilidades
+--------
+- Baixar Programa Destktop do Owasp ZAP (https://www.zaproxy.org/download/)
+- Pegar chave de API em ferramentas > opções > api
 
-```bash
-npm run dev
-# or
-yarn dev
+Obs.: Owasp ZAP roda na porta 8080
+
+## Aplicação Web
+------
+- Adicionar variáveis de ambiente:
+```env
+ZAP_API_KEY=s1g0o2iudmp5hdpdjniq8vjba2
+ZAP_PROXY=http://localhost:8080
+LIBRE_TRANSLATE_API_URL=http://localhost:5000
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
-
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
-
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- Executar: npx prisma migrate dev (para criar o banco de dados)
+- Executar: npm i (para instalar as dependências)
+- Executar: npm run dev (para iniciar a aplicação)
+- Executar (opcional): npx prisma studio (para manipular o banco de dados pelo navegador)
