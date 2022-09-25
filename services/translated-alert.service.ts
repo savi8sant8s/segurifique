@@ -7,10 +7,10 @@ export async function createTranslatedAlert(alert: TranslatedAlert) {
   });
 }
 
-export async function getTranslatedAlertByAlertRef(alertRef: string) {
+export async function getTranslatedAlertByAlertRef(alertId: string) {
   return await prisma.translatedAlert.findUnique({
     where: {
-      alertRef,
+      alertId,
     },
   });
 }

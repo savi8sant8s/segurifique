@@ -10,11 +10,10 @@ datasource db {
 model TranslatedAlert {
   id           Int      @id @default(autoincrement())
   createdAt    DateTime @default(now())
-  alert        String   
-  alertRef     String   @unique
-  description  String
+  title        String   
+  alertId      String   @unique
+  summary      String
   solution     String
-  name         String
 }
 
 model Whitelist {

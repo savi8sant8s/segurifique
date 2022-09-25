@@ -1,4 +1,4 @@
-import { createHandler, Get, Query } from 'next-api-decorators'
+import { Body, createHandler, Get, Post, Query } from 'next-api-decorators'
 import {
   urlAlerts,
   createTranslatedAlert,
@@ -39,6 +39,18 @@ class AlertsHandler {
     return alertsSummary
   }
 
+  // Usado para traduzir e salvar alertas extraídos do site do ZAP no banco de dados 
+  // @Post('/translate')
+  // async translate(@Body() body: any) {
+  //   for (let i = 0; i < body.length; i++) {
+  //     if (body[i].summary && body[i].solution){
+  //       body[i].title = await translate(body[i].title)
+  //       body[i].summary = await translate(body[i].summary)
+  //       body[i].solution = await translate(body[i].solution)
+  //       await createTranslatedAlert(body[i])
+  //     }
+  //   }
+  // }
 }
 
 export default createHandler(AlertsHandler)
