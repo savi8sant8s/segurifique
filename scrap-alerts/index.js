@@ -1,17 +1,13 @@
-const puppeteer = require('puppeteer');
-const fs = require('fs');
-
-function createJSONFile(data) {
-    fs.writeFileSync('alerts.json', JSON.stringify(data));
-}
+import puppeteer from 'puppeteer';
+import * as fs from 'fs';
 
 (async () => {
     const baseURL = 'https://www.zaproxy.org/docs/alerts'
 
     const browser = await puppeteer.launch({
-        // headless: false,
+        headless: false,
     });
-    
+
     const page = await browser.newPage();
 
     await page.goto(baseURL);
@@ -24,25 +20,29 @@ function createJSONFile(data) {
     const items = []
     for (const id of ids) {
         await page.goto(`${baseURL}/${id}`);
-        item = await page.evaluate(() => {
+        const item = await page.evaluate(() => {
             const item = {}
-            //h1 class class="text--white"
-
             const title = document.querySelector('section > div > h1').innerText;
-            item.title = title;
+            if (title) {
+                item.alert = title;
+            }
             const summary = document.querySelector('[data-attr="summary"] > p');
-            if (summary){
-                item.summary = summary.innerText;
+            if (summary) {
+                item.description = summary.innerText;
             }
             const solution = document.querySelector('[data-attr="solution"]');
-            if (solution){
+            if (solution) {
                 item.solution = solution.innerText.slice(9);
             }
             return item;
         });
-        item.alertId = id;
+        item.alertRef = id;
         items.push(item);
     }
-    createJSONFile(items)     
+    fs.writeFile('./data.json', JSON.stringify(items), (err) => {
+        if (err) throw err;
+        console.log('The file has been saved!');
+    })
+
     await browser.close();
 })();

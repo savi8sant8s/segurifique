@@ -1,16 +1,5 @@
-import { TranslatedAlert } from '@prisma/client';
-import { prisma } from './prisma.service';
+import alerts from '../alerts-br.json'
 
-export async function createTranslatedAlert(alert: TranslatedAlert) {
-  return await prisma.translatedAlert.create({
-    data: alert,
-  });
-}
-
-export async function getTranslatedAlertByAlertRef(alertId: string) {
-  return await prisma.translatedAlert.findUnique({
-    where: {
-      alertId,
-    },
-  });
+export async function getTranslatedAlert(alertRef: string) {
+  return alerts.find(alert => alert.alertRef === alertRef)
 }
