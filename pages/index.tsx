@@ -68,24 +68,27 @@ export default function Home() {
           <p>Status: {progress}</p>
         </div>
       )}
-      {progress === '100' && (
+      {progress === '100' && summary && (
         <>
           <div>
             <p>Resumo de vulnerabilidades:</p>
             <ul>
-              <li>Alta: {summary?.High}</li>
-              <li>Média: {summary?.Medium}</li>
-              <li>Baixa: {summary?.Low}</li>
-              <li>Informacional: {summary?.Informational}</li>
+              <li>Alta: {summary.High}</li>
+              <li>Média: {summary.Medium}</li>
+              <li>Baixa: {summary.Low}</li>
+              <li>Informacional: {summary.Informational}</li>
             </ul>
           </div>
           <div>
             <p>Vulnerabilidades</p>
-            <ul>
               {alerts.map((alert: any) => (
-                <li key={alert.id}>{alert.name}</li>
+                <div key={alert.id}>
+                  <p>Alerta: {alert.alert}</p>
+                  <p>Descrição: {alert.description}</p>
+                  <p>Solução: {alert.solution}</p>
+                  <div style={{border: '1px solid black'}}></div>
+                </div>
               ))}
-            </ul>
           </div>
         </>
       )}
