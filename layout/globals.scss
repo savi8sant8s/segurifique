@@ -1,0 +1,36 @@
+html,
+body,
+div,
+span,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+a,
+img,
+strong,
+ul,
+li,
+form,
+label,
+table,
+article,
+aside,
+footer,
+header,
+nav,
+section {
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  // background: #343434;
+  background: #1A1A1A url("../public/imgBackground.png");
+  font-family: 'Roboto', sans-serif;
+}

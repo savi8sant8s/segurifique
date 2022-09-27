@@ -1,6 +1,14 @@
-import '../styles/globals.scss'
+import '../layout/globals.scss'
 import type { AppProps } from 'next/app'
+import { Footer, Header } from '../layout/index'
+
 
 export default function SSUPE({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />
+  return (
+    <>
+      <Header />
+      <Component {...pageProps} />
+      <Footer />
+    </>
+  )
 }
