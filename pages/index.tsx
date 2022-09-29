@@ -1,7 +1,77 @@
 import { useRef, useState, useEffect } from 'react'
 import styles from './Home.module.scss'
 import axios from 'axios'
-import { Box, Button, Container, LinearProgress, Stack, TextField, Typography } from '@mui/material'
+import { Box, Container, LinearProgress, Stack, Typography } from '@mui/material'
+import { BarChartRace, TableCustom } from '../components';
+
+interface Data {
+  risco: string;
+  titulo: string;
+  descricao: string;
+  solucao: string;
+  link: string;
+}
+
+function createData(
+  risco: string,
+  titulo: string,
+  descricao: string,
+  solucao: string,
+  link: string,
+): Data {
+  return { risco, titulo, descricao, solucao, link };
+}
+
+const rows = [
+  createData(
+    'Alto',
+    'Lorem Ipsum is simply dummy text of the printing and typesetting industry',
+    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
+    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
+    'https://www.google.com.br/?gws_rd=cr&ei=qBsTWZ3lEIqowgSp9Je4CA'),
+  createData(
+    'Informacional',
+    'Lorem Ipsum is simply dummy text of the printing and typesetting industry',
+    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
+    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
+    'icone2'),
+  createData(
+    'Médio',
+    'Lorem Ipsum is simply dummy text of the printing and typesetting industry',
+    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
+    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
+    'icone'),
+  createData(
+    'Baixo',
+    'Lorem Ipsum is simply dummy text of the printing and typesetting industry',
+    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
+    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
+    'icone'),
+  createData(
+    'Alto',
+    'Lorem Ipsum is simply dummy text of the printing and typesetting industry',
+    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
+    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
+    'icone'),
+  createData(
+    'Alto',
+    'Lorem Ipsum is simply dummy text of the printing and typesetting industry',
+    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
+    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
+    'icone'),
+  createData(
+    'Alto',
+    'Lorem Ipsum is simply dummy text of the printing and typesetting industry',
+    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
+    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
+    'icone'),
+  createData(
+    'Alto',
+    'Lorem Ipsum is simply dummy text of the printing and typesetting industry',
+    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
+    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
+    'icone'),
+];
 
 export default function Home() {
   const [url, setUrl] = useState('')
@@ -11,22 +81,33 @@ export default function Home() {
   const [alerts, setAlerts] = useState<any>([])
   const intervalRef = useRef<number | null>(null)
   const [progress2, setProgress2] = useState(0);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setProgress2((oldProgress) => {
-        if (oldProgress === 100) {
-          return 0;
-        }
-        const diff = Math.random() * 10;
-        return Math.min(oldProgress + diff, 100);
-      });
-    }, 500);
+  const handleChangePage = (event: unknown, newPage: number) => {
+    setPage(newPage);
+  };
 
-    return () => {
-      clearInterval(timer);
-    };
-  }, []);
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+  };
+
+  // useEffect(() => {
+  //   const timer = setInterval(() => {
+  //     setProgress2((oldProgress) => {
+  //       if (oldProgress === 100) {
+  //         return 0;
+  //       }
+  //       const diff = Math.random() * 10;
+  //       return Math.min(oldProgress + diff, 100);
+  //     });
+  //   }, 500);
+
+  //   return () => {
+  //     clearInterval(timer);
+  //   };
+  // }, []);
 
   const startScan = async () => {
     axios.get(`/api/scan?url=${url}`).then((res) => {
@@ -100,8 +181,14 @@ export default function Home() {
             <Box sx={{ width: '100%' }} className={styles.progressBar}>
               <LinearProgress variant="determinate" value={progress2} />
             </Box>
+
+            <Box>
+              <BarChartRace />
+            </Box>
+
             <Typography variant='body1' className={styles.information}>
-              *Buscaremos por vunerabilidades através... Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.            </Typography>
+              *Buscaremos por vunerabilidades através... Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+            </Typography>
           </Box>
         </Box>
 
@@ -110,7 +197,14 @@ export default function Home() {
             RESULTADO DA VERIFICAÇÃO
           </Box>
           <Box className={styles.body}>
-            corpo
+            <TableCustom
+              rows={rows}
+              page={page}
+              rowsPerPage={rowsPerPage}
+              handleChangePage={handleChangePage}
+              handleChangeRowsPerPage={handleChangeRowsPerPage}
+              key='table1'
+            />
           </Box>
         </Box>
       </Stack>
