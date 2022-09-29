@@ -1,0 +1,22 @@
+.container {
+    background-color: #1E1E1E;
+    padding: 0 !important;
+    border-bottom: 1px solid rgb(79, 79, 79);
+}
+
+.headerBody {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+    padding: 16px 0;
+}
+
+.headerBody a {
+    color: white;
+    margin-left: 16px;
+
+    &:hover {
+        color: rgb(201, 201, 201);
+        cursor: pointer;
+    }
+}
