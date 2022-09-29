@@ -34,7 +34,7 @@ export const BarChartRace = () => {
     ])
 
     const mover = () => {
-        setData([
+        const data = [
             {
                 id: 1,
                 type: 'Alto',
@@ -59,7 +59,10 @@ export const BarChartRace = () => {
                 color: 'blue',
                 value: getRandomArbitrary(0, 100),
             },
-        ])
+        ]
+
+        const sortedData = data.sort((a, b) => b.value - a.value)
+        setData(sortedData)
     }
 
     const toWidth = (value: number) => {
@@ -84,6 +87,7 @@ export const BarChartRace = () => {
                                     height: '30px',
                                     display: 'flex',
                                     alignItems: 'center',
+                                    padding: '8px',
                                     margin: '8px 0',
                                     borderRadius: '0 16px 16px 0'
                                 }}
