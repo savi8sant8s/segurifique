@@ -17,6 +17,8 @@ export async function spiderScan(url: string) {
   const response = await axios_.get(`/JSON/spider/action/scan`, {
     params: {
       url,
+      recurse: true,
+      subtreeOnly: true,
     },
   })
   return response.data
@@ -49,11 +51,7 @@ export async function urlAlerts(url: string) {
   return response.data
 }
 
-export async function urlAlertsSummary(url: string) {
-  const response = await axios_.get(`/JSON/alert/view/alertsSummary`, {
-    params: {
-      url,
-    },
-  })
+export async function urlsAlreadyScanned() {
+  const response = await axios_.get(`/JSON/core/view/sites`)
   return response.data
 }

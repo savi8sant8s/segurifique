@@ -64,7 +64,7 @@ export const BarChartRace = ({ summary }: BarChartRaceProps) => {
         style={{
           backgroundColor: '#5d5d5d',
           borderRadius: '8px',
-          padding: '16px 0',
+          padding: '16px 16px 16px 0',
           marginTop: '16px',
         }}
       >

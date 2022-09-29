@@ -2,7 +2,6 @@ import { createHandler, Get, Query } from 'next-api-decorators'
 import {
   getTranslatedAlert,
   urlAlerts,
-  urlAlertsSummary,
 } from '../../../services'
 
 class AlertsHandler {
@@ -20,12 +19,6 @@ class AlertsHandler {
       }
     }
     return alerts
-  }
-
-  @Get('/summary')
-  async urlAlertsSummary(@Query('url') url: string) {
-    const { alertsSummary } = await urlAlertsSummary(url)
-    return alertsSummary
   }
 }
 

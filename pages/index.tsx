@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react'
+import { useState } from 'react'
 import styles from './Home.module.scss'
 import axios from 'axios'
 import {
@@ -10,116 +10,32 @@ import {
 } from '@mui/material'
 import { BarChartRace, Summary, TableCustom } from '../components'
 
-interface Data {
-  risco: string
-  titulo: string
-  descricao: string
-  solucao: string
-  link: string
-}
-
-function createData(
-  risco: string,
-  titulo: string,
-  descricao: string,
-  solucao: string,
-  link: string
-): Data {
-  return { risco, titulo, descricao, solucao, link }
-}
-
-const rows = [
-  createData(
-    'Alto',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
-    'https://www.google.com.br/?gws_rd=cr&ei=qBsTWZ3lEIqowgSp9Je4CA'
-  ),
-  createData(
-    'Informacional',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
-    'icone2'
-  ),
-  createData(
-    'Médio',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
-    'icone'
-  ),
-  createData(
-    'Baixo',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
-    'icone'
-  ),
-  createData(
-    'Alto',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
-    'icone'
-  ),
-  createData(
-    'Alto',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
-    'icone'
-  ),
-  createData(
-    'Alto',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
-    'icone'
-  ),
-  createData(
-    'Alto',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
-    'icone'
-  ),
-]
-
 enum Status {
   STOPPED,
   SCANNING,
   FINISHED,
   NOSEARCH,
+  CLEARED,
 }
 
 export default function Home() {
   const [status, setStatus] = useState<Status>(Status.NOSEARCH)
   const [url, setUrl] = useState('')
   const [scanId, setScanId] = useState('')
-  const [progress, setProgress] = useState<number>(0)
+  const [progress, setProgress] = useState<string>('0%')
   const [summary, setSummary] = useState<Summary>({
     High: 0,
     Medium: 0,
     Low: 0,
     Informational: 0,
   })
-  const controller = new AbortController()
+  const [summaryLoading, setSummaryLoading] = useState<boolean>(false)
+
   const [alerts, setAlerts] = useState<any>([])
-  const intervalRef = useRef<number | null>(null)
   const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(5)
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage)
-  }
-
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setRowsPerPage(+event.target.value)
-    setPage(0)
   }
 
   const isValidUrl = (url: string) => {
@@ -129,82 +45,89 @@ export default function Home() {
     return pattern.test(url)
   }
 
-  const clearData = () => {
-    window.clearInterval(intervalRef.current)
-    controller.abort()
+  const clearFormAndInfo = () => {
     setUrl('')
     setScanId('')
-    setProgress(0)
+    setProgress('0%')
+    setAlerts([])
     setSummary({
       High: 0,
       Medium: 0,
       Low: 0,
       Informational: 0,
     })
+    setStatus(Status.CLEARED)
   }
 
   const startScan = async () => {
     if (!isValidUrl(url)) {
       alert('URL inválida. Verifique e tente novamente.')
     } else {
-      axios
-        .get(`/api/scan?url=${url}`, {
-          signal: controller.signal,
-        })
-        .then((res) => {
+      try {
+        const { data }: any = await axios.get(`/api/scan?url=${url}`)
+        if (data.status === 'SCANNED') {
+          setProgress('100%')
+          await getAlerts()
+          setStatus(Status.FINISHED)
+        } else {
+          setScanId(data.scan)
           setStatus(Status.SCANNING)
-          intervalRef.current = window.setInterval(async () => {
-            await scanStatus(res.data.scan)
-          }, 2000)
-        })
+          await getStatus(data.scan)
+        }
+      } catch ({ response }: any) {
+        alert(response.data.message)
+      }
     }
   }
 
   const stopScan = async () => {
-    axios
-      .put(`/api/scan/stop/${scanId}`, {
-        signal: controller.signal,
-      })
-      .then(() => {
-        setStatus(Status.STOPPED)
-        clearData()
-      })
+    await axios.put(`/api/scan/stop/${scanId}`)
+    setStatus(Status.STOPPED)
+    clearFormAndInfo()
   }
 
-  const scanStatus = async (scanId: string) => {
-    axios
-      .get(`/api/scan/status/${scanId}`, {
-        signal: controller.signal,
-      })
-      .then(async (res) => {
-        setProgress(res.data.status)
-        await getAlertsSummary()
-        if (res.data.status === '100' && intervalRef.current) {
-          window.clearInterval(intervalRef.current)
-          setStatus(Status.FINISHED)
-          await getAlerts()
-        }
-      })
+  const getStatus = async (scanId: string) => {
+    const { data }: any = await axios.get(`/api/scan/status/${scanId}`)
+    setProgress(data.status + '%')
+    if (data.status === '100') {
+      setStatus(Status.FINISHED)
+      await getAlerts()
+    } else {
+      await getStatus(scanId)
+    }
   }
 
-  const getAlertsSummary = async () => {
-    axios
-      .get(`/api/alerts/summary?url=${url}`, {
-        signal: controller.signal,
-      })
-      .then((res) => {
-        setSummary(res.data)
-      })
+  const toName = (key: string) => {
+    return {
+      High: 'Alto',
+      Low: 'Baixo',
+      Medium: 'Médio',
+      Informational: 'Informacional',
+    }[key]
   }
 
   const getAlerts = async () => {
-    axios
-      .get(`/api/alerts?url=${url}`, {
-        signal: controller.signal,
-      })
-      .then((res) => {
-        setAlerts(res.data)
-      })
+    setSummaryLoading(true)
+    const { data }: any = await axios.get(`/api/alerts?url=${url}`)
+    setSummaryLoading(false)
+    const summary_ = {
+      High: 0,
+      Medium: 0,
+      Low: 0,
+      Informational: 0,
+    }
+    const items = data.map((item: any) => {
+      summary_[item.confidence] += 1
+      return {
+        risk: toName(item.confidence),
+        alert: item.alert,
+        description: item.description,
+        solution: item.solution,
+        references: item.reference,
+      }
+    })
+    setSummary(summary_)
+    setAlerts(items)
   }
 
   const OptionButton = () => {
@@ -215,7 +138,7 @@ export default function Home() {
         </button>
       )
     }
-    if ([Status.NOSEARCH, Status.STOPPED].includes(status)) {
+    if ([Status.NOSEARCH, Status.STOPPED, Status.CLEARED].includes(status)) {
       return (
         <button className={styles.buttonVerificar} onClick={startScan}>
           VERIFICAR
@@ -224,7 +147,7 @@ export default function Home() {
     }
     if ([Status.FINISHED].includes(status)) {
       return (
-        <button className={styles.buttonVerificar} onClick={clearData}>
+        <button className={styles.buttonVerificar} onClick={clearFormAndInfo}>
           LIMPAR
         </button>
       )
@@ -265,46 +188,60 @@ export default function Home() {
               />
               <OptionButton />
             </Box>
+
+            <Typography variant="body1" className={styles.information}>
+              - Buscaremos por vulnerabilidades através do
+              <a
+                style={{ textDecoration: 'none' }}
+                href="https://www.zaproxy.org/"
+              >
+                {' '}
+                OWASP ZAP
+              </a>
+              , o <strong>web scanner mais utilizado do mundo</strong>.<br />-
+              Gratuito, de código aberto e ativamente mantido por uma equipe
+              internacional de voluntários.
+            </Typography>
+
             {status !== Status.NOSEARCH && (
               <>
                 <Box sx={{ width: '100%' }} className={styles.progressBar}>
                   <LinearProgress
                     style={{ width: '95%' }}
                     variant="determinate"
-                    value={progress}
+                    value={Number(progress.slice(0, -1))}
                   />
-                  <span style={{ marginLeft: '1rem' }}>{progress}%</span>
+                  <span style={{ marginLeft: '1rem' }}>{progress}</span>
                 </Box>
 
                 <Box>
+                  {summaryLoading && (
+                    <LinearProgress
+                      style={{ width: '100%', marginTop: '0.5rem' }}
+                      variant="query"
+                    />
+                  )}
                   <BarChartRace summary={summary} />
                 </Box>
               </>
             )}
-
-            <Typography variant="body1" className={styles.information}>
-              - Buscaremos por vulnerabilidades através do 
-              <a style={{textDecoration: 'none'}} href="https://www.zaproxy.org/"> OWASP ZAP</a>,
-              o <strong>web scanner mais utilizado do mundo</strong>.<br /> 
-              - Gratuito, de código aberto e ativamente mantido por uma equipe 
-              internacional de voluntários.
-            </Typography>
           </Box>
         </Box>
 
-        <Box className={styles.sectionThre}>
-          <Box className={styles.header}>RESULTADO DA VERIFICAÇÃO</Box>
-          <Box className={styles.body}>
-            <TableCustom
-              rows={rows}
-              page={page}
-              rowsPerPage={rowsPerPage}
-              handleChangePage={handleChangePage}
-              handleChangeRowsPerPage={handleChangeRowsPerPage}
-              key="table1"
-            />
+        {alerts.length > 0 && (
+          <Box className={styles.sectionThre}>
+            <Box className={styles.header}>RESULTADO DA VERIFICAÇÃO</Box>
+            <Box className={styles.body}>
+              <TableCustom
+                rows={alerts}
+                page={page}
+                rowsPerPage={5}
+                handleChangePage={handleChangePage}
+                key="table1"
+              />
+            </Box>
           </Box>
-        </Box>
+        )}
       </Stack>
     </Container>
   )
