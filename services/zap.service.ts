@@ -19,6 +19,7 @@ export async function spiderScan(url: string) {
       url,
       recurse: true,
       subtreeOnly: true,
+      maxChildren: 1,
     },
   })
   return response.data
@@ -42,10 +43,21 @@ export async function spiderStatus(scanId: string) {
   return response.data
 }
 
-export async function urlAlerts(url: string) {
+export async function urlAlerts(baseurl: string) {
   const response = await axios_.get(`/JSON/alert/view/alerts`, {
     params: {
-      url,
+      baseurl,
+      start: 0,
+      count: 10,
+    },
+  })
+  return response.data
+}
+
+export async function urlAlertsSummary(baseurl: string) {
+  const response = await axios_.get(`/JSON/alert/view/alertsSummary`, {
+    params: {
+      baseurl,
     },
   })
   return response.data

@@ -1,5 +1,6 @@
 .containerHome {
     min-height: calc(100vh - 105px) !important;
+    padding: 1rem;
 }
 
 .sectionOne {
@@ -10,7 +11,10 @@
     color: white;
 }
 
-
+.header {
+    display: flex;
+    align-items: center;
+}
 
 
 

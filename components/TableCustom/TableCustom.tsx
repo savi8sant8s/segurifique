@@ -29,6 +29,7 @@ interface PropsTableCustom {
   page: number
   rowsPerPage: number
   handleChangePage: any
+  handleChangeRowsPerPage: any
 }
 
 interface IRiskLabel {
@@ -40,6 +41,7 @@ export const TableCustom = ({
   page,
   rowsPerPage,
   handleChangePage,
+  handleChangeRowsPerPage,
 }: PropsTableCustom) => {
   const defaultLabelDisplayedRows = () => {
     return null
@@ -96,9 +98,11 @@ export const TableCustom = ({
                             : null}
                           {column.id === 'references' ? (
                             <ul>
-                              {value.split('\n').map((item: any, index: number) => (
-                                <li key={index}>{item}</li>
-                              ))}
+                              {value
+                                ?.split('\n')
+                                .map((item: any, index: number) => (
+                                  <li key={index}>{item}</li>
+                                ))}
                             </ul>
                           ) : null}
                         </TableCell>
@@ -117,6 +121,7 @@ export const TableCustom = ({
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
         labelRowsPerPage="Linhas por página:"
         labelDisplayedRows={defaultLabelDisplayedRows}
       />

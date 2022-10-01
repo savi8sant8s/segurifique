@@ -1,11 +1,14 @@
 import { useState } from 'react'
 import styles from './Home.module.scss'
 import axios from 'axios'
+import InfoIcon from '@mui/icons-material/Info'
 import {
   Box,
   Container,
+  IconButton,
   LinearProgress,
   Stack,
+  Tooltip,
   Typography,
 } from '@mui/material'
 import { BarChartRace, Summary, TableCustom } from '../components'
@@ -33,6 +36,7 @@ export default function Home() {
 
   const [alerts, setAlerts] = useState<any>([])
   const [page, setPage] = useState(0)
+  const [rowsPerPage, setRowsPerPage] = useState(5)
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage)
@@ -59,6 +63,13 @@ export default function Home() {
     setStatus(Status.CLEARED)
   }
 
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setRowsPerPage(+event.target.value)
+    setPage(0)
+  }
+
   const startScan = async () => {
     if (!isValidUrl(url)) {
       alert('URL inválida. Verifique e tente novamente.')
@@ -67,6 +78,7 @@ export default function Home() {
         const { data }: any = await axios.get(`/api/scan?url=${url}`)
         if (data.status === 'SCANNED') {
           setProgress('100%')
+          await getAlertsSummary()
           await getAlerts()
           setStatus(Status.FINISHED)
         } else {
@@ -90,44 +102,24 @@ export default function Home() {
     const { data }: any = await axios.get(`/api/scan/status/${scanId}`)
     setProgress(data.status + '%')
     if (data.status === '100') {
-      setStatus(Status.FINISHED)
+      await getAlertsSummary()
       await getAlerts()
+      setStatus(Status.FINISHED)
     } else {
       await getStatus(scanId)
     }
   }
 
-  const toName = (key: string) => {
-    return {
-      High: 'Alto',
-      Low: 'Baixo',
-      Medium: 'Médio',
-      Informational: 'Informacional',
-    }[key]
+  const getAlerts = async () => {
+    const { data }: any = await axios.get(`/api/alerts?url=${url}`)
+    setAlerts(data)
   }
 
-  const getAlerts = async () => {
+  const getAlertsSummary = async () => {
     setSummaryLoading(true)
-    const { data }: any = await axios.get(`/api/alerts?url=${url}`)
+    const { data }: any = await axios.get(`/api/alerts/summary?url=${url}`)
     setSummaryLoading(false)
-    const summary_ = {
-      High: 0,
-      Medium: 0,
-      Low: 0,
-      Informational: 0,
-    }
-    const items = data.map((item: any) => {
-      summary_[item.confidence] += 1
-      return {
-        risk: toName(item.confidence),
-        alert: item.alert,
-        description: item.description,
-        solution: item.solution,
-        references: item.reference,
-      }
-    })
-    setSummary(summary_)
-    setAlerts(items)
+    setSummary(data)
   }
 
   const OptionButton = () => {
@@ -175,6 +167,15 @@ export default function Home() {
         <Box className={styles.sectionTwo}>
           <Box className={styles.header}>
             EXECUTE UMA VERIFICAÇÃO DE SEGURANÇA ABAIXO
+            <Tooltip
+              title={
+                'Busca não recursiva, restringida a sub-árvore do site e com números de filhos verificados igual a 1.'
+              }
+            >
+              <IconButton>
+                <InfoIcon color="primary" />
+              </IconButton>
+            </Tooltip>
           </Box>
           <Box className={styles.body}>
             <Box className={styles.search}>
@@ -203,28 +204,24 @@ export default function Home() {
               internacional de voluntários.
             </Typography>
 
-            {status !== Status.NOSEARCH && (
-              <>
-                <Box sx={{ width: '100%' }} className={styles.progressBar}>
-                  <LinearProgress
-                    style={{ width: '95%' }}
-                    variant="determinate"
-                    value={Number(progress.slice(0, -1))}
-                  />
-                  <span style={{ marginLeft: '1rem' }}>{progress}</span>
-                </Box>
+            <Box sx={{ width: '100%' }} className={styles.progressBar}>
+              <LinearProgress
+                style={{ width: '95%' }}
+                variant="determinate"
+                value={Number(progress.slice(0, -1))}
+              />
+              <span style={{ marginLeft: '1rem' }}>{progress}</span>
+            </Box>
 
-                <Box>
-                  {summaryLoading && (
-                    <LinearProgress
-                      style={{ width: '100%', marginTop: '0.5rem' }}
-                      variant="query"
-                    />
-                  )}
-                  <BarChartRace summary={summary} />
-                </Box>
-              </>
-            )}
+            <Box>
+              {summaryLoading && (
+                <LinearProgress
+                  style={{ width: '100%', marginTop: '0.5rem' }}
+                  variant="query"
+                />
+              )}
+              <BarChartRace summary={summary} />
+            </Box>
           </Box>
         </Box>
 
@@ -235,7 +232,8 @@ export default function Home() {
               <TableCustom
                 rows={alerts}
                 page={page}
-                rowsPerPage={5}
+                rowsPerPage={rowsPerPage}
+                handleChangeRowsPerPage={handleChangeRowsPerPage}
                 handleChangePage={handleChangePage}
                 key="table1"
               />
