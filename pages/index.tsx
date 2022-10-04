@@ -11,18 +11,10 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material'
-import { BarChartRace, Summary, TableCustom } from '../components'
-
-enum Status {
-  STOPPED,
-  SCANNING,
-  FINISHED,
-  NOSEARCH,
-  CLEARED,
-}
+import { BarChartRace, Summary, TableCustom } from '@/components'
+import { isValidUrl } from '@/helpers'
 
 export default function Home() {
-  const [status, setStatus] = useState<Status>(Status.NOSEARCH)
   const [url, setUrl] = useState('')
   const [scanId, setScanId] = useState('')
   const [progress, setProgress] = useState<string>('0%')
@@ -34,7 +26,7 @@ export default function Home() {
   })
   const [summaryLoading, setSummaryLoading] = useState<boolean>(false)
 
-  const [alerts, setAlerts] = useState<any>([])
+  const [alerts, setAlerts] = useState<object[]>([])
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(5)
 
@@ -42,25 +34,20 @@ export default function Home() {
     setPage(newPage)
   }
 
-  const isValidUrl = (url: string) => {
-    const pattern = new RegExp(
-      /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/
-    )
-    return pattern.test(url)
-  }
-
-  const clearFormAndInfo = () => {
+  const clearFormAndInfo = (clearOnlyResults = false) => {
+    if (clearOnlyResults) {
+      setAlerts([])
+      setSummary({
+        High: 0,
+        Medium: 0,
+        Low: 0,
+        Informational: 0,
+      })
+      return
+    }
     setUrl('')
     setScanId('')
     setProgress('0%')
-    setAlerts([])
-    setSummary({
-      High: 0,
-      Medium: 0,
-      Low: 0,
-      Informational: 0,
-    })
-    setStatus(Status.CLEARED)
   }
 
   const handleChangeRowsPerPage = (
@@ -71,79 +58,59 @@ export default function Home() {
   }
 
   const startScan = async () => {
-    if (!isValidUrl(url)) {
+    const validUrl = isValidUrl(url)
+    if (!validUrl) {
       alert('URL inválida. Verifique e tente novamente.')
     } else {
+      clearFormAndInfo(true)
       try {
-        const { data }: any = await axios.get(`/api/scan?url=${url}`)
+        const { data } = await axios.get(`/api/scan?url=${url}`)
         if (data.status === 'SCANNED') {
           setProgress('100%')
-          await getAlertsSummary()
-          await getAlerts()
-          setStatus(Status.FINISHED)
+          setTimeout(async () => {
+            await getAlertsSummary()
+            await getFirstAlerts()
+          }, 1000)
         } else {
           setScanId(data.scan)
-          setStatus(Status.SCANNING)
           await getStatus(data.scan)
         }
-      } catch ({ response }: any) {
-        alert(response.data.message)
+      } catch (error) {
+        alert(error.response.data.message)
       }
     }
   }
 
-  const stopScan = async () => {
-    await axios.put(`/api/scan/stop/${scanId}`)
-    setStatus(Status.STOPPED)
-    clearFormAndInfo()
-  }
-
   const getStatus = async (scanId: string) => {
-    const { data }: any = await axios.get(`/api/scan/status/${scanId}`)
+    const { data } = await axios.get(`/api/scan/status/${scanId}`)
     setProgress(data.status + '%')
     if (data.status === '100') {
       await getAlertsSummary()
-      await getAlerts()
-      setStatus(Status.FINISHED)
+      await getFirstAlerts()
     } else {
       await getStatus(scanId)
     }
   }
 
-  const getAlerts = async () => {
-    const { data }: any = await axios.get(`/api/alerts?url=${url}`)
+  const getFirstAlerts = async () => {
+    const { data } = await axios.get('/api/alerts', {
+      params: {
+        url,
+        first: true,
+      },
+    })
     setAlerts(data)
   }
 
   const getAlertsSummary = async () => {
     setSummaryLoading(true)
-    const { data }: any = await axios.get(`/api/alerts/summary?url=${url}`)
+    const { data } = await axios.get('/api/alerts/summary', {
+      params: {
+        url,
+      },
+    })
     setSummaryLoading(false)
     setSummary(data)
-  }
-
-  const OptionButton = () => {
-    if ([Status.SCANNING].includes(status)) {
-      return (
-        <button className={styles.buttonVerificar} onClick={stopScan}>
-          INTERROMPER
-        </button>
-      )
-    }
-    if ([Status.NOSEARCH, Status.STOPPED, Status.CLEARED].includes(status)) {
-      return (
-        <button className={styles.buttonVerificar} onClick={startScan}>
-          VERIFICAR
-        </button>
-      )
-    }
-    if ([Status.FINISHED].includes(status)) {
-      return (
-        <button className={styles.buttonVerificar} onClick={clearFormAndInfo}>
-          LIMPAR
-        </button>
-      )
-    }
   }
 
   return (
@@ -166,7 +133,7 @@ export default function Home() {
 
         <Box className={styles.sectionTwo}>
           <Box className={styles.header}>
-            EXECUTE UMA VERIFICAÇÃO DE SEGURANÇA ABAIXO
+            EXECUTE UMA VERIFICAÇÃO BÁSICA DE SEGURANÇA ABAIXO
             <Tooltip
               title={
                 'Busca não recursiva, restringida a sub-árvore do site e com números de filhos verificados igual a 1.'
@@ -180,14 +147,20 @@ export default function Home() {
           <Box className={styles.body}>
             <Box className={styles.search}>
               <input
-                disabled={status === Status.SCANNING}
+                disabled={scanId !== '' && progress !== '100%'}
                 className={styles.inputLinkInstituicao}
                 placeholder="https://www.siteinstitucional.br"
                 type="text"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
               />
-              <OptionButton />
+              <button
+                disabled={scanId !== '' && progress !== '100%'}
+                className={styles.buttonVerificar}
+                onClick={startScan}
+              >
+                Verificar
+              </button>
             </Box>
 
             <Typography variant="body1" className={styles.information}>

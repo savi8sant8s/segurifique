@@ -25,15 +25,6 @@ export async function spiderScan(url: string) {
   return response.data
 }
 
-export async function spiderStop(scanId: string) {
-  const response = await axios_.get(`/JSON/spider/action/stop`, {
-    params: {
-      scanId,
-    },
-  })
-  return response.data
-}
-
 export async function spiderStatus(scanId: string) {
   const response = await axios_.get(`/JSON/spider/view/status`, {
     params: {
@@ -43,12 +34,12 @@ export async function spiderStatus(scanId: string) {
   return response.data
 }
 
-export async function urlAlerts(baseurl: string) {
+export async function urlAlerts(baseurl: string, first = true) {
+  const moreParams = first ? { start: 0, count: 10 } : {}
   const response = await axios_.get(`/JSON/alert/view/alerts`, {
     params: {
       baseurl,
-      start: 0,
-      count: 10,
+      ...moreParams,
     },
   })
   return response.data

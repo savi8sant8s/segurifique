@@ -3,16 +3,14 @@ import {
   createHandler,
   Get,
   Param,
-  Put,
   Query,
 } from 'next-api-decorators'
 import {
   spiderScan,
   spiderStatus,
-  spiderStop,
   urlAllowed,
   urlsAlreadyScanned,
-} from '../../../services'
+} from '@/services'
 
 class ScanHandler {
   @Get()
@@ -27,11 +25,6 @@ class ScanHandler {
       return { status: 'SCANNED' }
     }
     return await spiderScan(origin)
-  }
-
-  @Put('/stop/:scanId')
-  async stopScan(@Param('scanId') scanId: string) {
-    return await spiderStop(scanId)
   }
 
   @Get('/status/:scanId')
