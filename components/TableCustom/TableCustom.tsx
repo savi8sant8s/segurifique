@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import {
   Paper,
   Table,
@@ -25,7 +25,7 @@ const columns: readonly Column[] = [
 ]
 
 interface PropsTableCustom {
-  rows: any
+  vulnerabilities: any
   page: number
   rowsPerPage: number
   handleChangePage: any
@@ -37,7 +37,7 @@ interface IRiskLabel {
 }
 
 export const TableCustom = ({
-  rows,
+  vulnerabilities,
   page,
   rowsPerPage,
   handleChangePage,
@@ -48,15 +48,23 @@ export const TableCustom = ({
   }
 
   const RiskLabel = ({ typeRisk }: IRiskLabel) => {
-    if (typeRisk === 'Alto') {
-      return <strong style={{ color: 'red' }}>{typeRisk}</strong>
-    } else if (typeRisk === 'Médio') {
-      return <strong style={{ color: 'orange' }}>{typeRisk}</strong>
-    } else if (typeRisk === 'Baixo') {
-      return <strong style={{ color: '#a8aa21' }}>{typeRisk}</strong>
-    } else if (typeRisk === 'Informacional') {
-      return <strong style={{ color: 'blue' }}>{typeRisk}</strong>
+    if (typeRisk === 'High') {
+      return <React.Fragment>
+        <strong style={{ color: 'red' }}>Alto</strong>
+      </React.Fragment>
+    } else if (typeRisk === 'Medium') {
+      return <React.Fragment>
+        <strong style={{ color: 'orange' }}>Médio</strong>
+      </React.Fragment>
+    } else if (typeRisk === 'Low') {
+      return <React.Fragment>
+        <strong style={{ color: 'green' }}>Baixo</strong>
+      </React.Fragment>
+    } else if (typeRisk === 'Informational') {
     }
+    return <React.Fragment>
+      <strong style={{ color: 'blue' }}>Informacional</strong>
+    </React.Fragment>
   }
 
   return (
@@ -81,13 +89,13 @@ export const TableCustom = ({
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows
+            {vulnerabilities
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row: any) => {
+              .map((vulnerabilities: any) => {
                 return (
-                  <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
+                  <TableRow hover role="checkbox" tabIndex={-1} key={vulnerabilities.code}>
                     {columns.map((column) => {
-                      const value = row[column.id]
+                      const value = vulnerabilities[column.id]
                       return (
                         <TableCell key={column.id}>
                           {column.id === 'risk' ? (
@@ -117,7 +125,7 @@ export const TableCustom = ({
       <TablePagination
         rowsPerPageOptions={[5, 10, 20]}
         component="div"
-        count={rows.length}
+        count={vulnerabilities.length}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}

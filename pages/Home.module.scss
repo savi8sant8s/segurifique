@@ -54,6 +54,9 @@
     color: #EC2026;
     height: 40px;
     width: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     border-radius: 8px;
     border: 1px solid #EC2026;
     background: transparent;
@@ -67,6 +70,14 @@
 
     &:focus {
         font-size: 14px;
+    }
+
+    &:disabled {
+        color: rgb(139, 139, 139);
+        border: none;
+        background: #343434;
+        cursor: not-allowed;
+        pointer-events: all !important;
     }
 }
 

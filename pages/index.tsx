@@ -1,9 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import styles from './Home.module.scss'
 import axios from 'axios'
 import InfoIcon from '@mui/icons-material/Info'
 import {
   Box,
+  Chip,
+  CircularProgress,
   Container,
   IconButton,
   LinearProgress,
@@ -12,7 +14,8 @@ import {
   Typography,
 } from '@mui/material'
 import { BarChartRace, Summary, TableCustom } from '@/components'
-import { isValidUrl } from '@/helpers'
+import { isValidUrl, translateRisk } from '@/helpers'
+import { PdfGenerator } from '@/components/PdfGenerator/PdfGenerator'
 
 export default function Home() {
   const [url, setUrl] = useState('')
@@ -25,10 +28,18 @@ export default function Home() {
     Informational: 0,
   })
   const [summaryLoading, setSummaryLoading] = useState<boolean>(false)
+  const [protocolo, setProtocolo] = useState('https://')
 
-  const [alerts, setAlerts] = useState<object[]>([])
+  const [vulnerabilities, setVulnerabilities] = useState<object[]>([])
+  const [vulnerabilitiesFiltered, setVulnerabilitiesFiltered] = useState<object[]>([])
+  const [chosenFilter, setChosenFilter] = useState('');
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(5)
+
+  const handleDelete = () => {
+    setChosenFilter('');
+    setVulnerabilitiesFiltered([]);
+  };
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage)
@@ -36,7 +47,7 @@ export default function Home() {
 
   const clearFormAndInfo = (clearOnlyResults = false) => {
     if (clearOnlyResults) {
-      setAlerts([])
+      setVulnerabilities([])
       setSummary({
         High: 0,
         Medium: 0,
@@ -58,13 +69,13 @@ export default function Home() {
   }
 
   const startScan = async () => {
-    const validUrl = isValidUrl(url)
+    const validUrl = isValidUrl(`${protocolo}${url}`);
     if (!validUrl) {
       alert('URL inválida. Verifique e tente novamente.')
     } else {
       clearFormAndInfo(true)
       try {
-        const { data } = await axios.get(`/api/scan?url=${url}`)
+        const { data } = await axios.get(`/api/scan?url=${protocolo}${url}`)
         if (data.status === 'SCANNED') {
           setProgress('100%')
           setTimeout(async () => {
@@ -75,7 +86,7 @@ export default function Home() {
           setScanId(data.scan)
           await getStatus(data.scan)
         }
-      } catch (error) {
+      } catch (error: any) {
         alert(error.response.data.message)
       }
     }
@@ -95,23 +106,42 @@ export default function Home() {
   const getFirstAlerts = async () => {
     const { data } = await axios.get('/api/alerts', {
       params: {
-        url,
+        url: `${protocolo}${url}`,
         first: true,
       },
     })
-    setAlerts(data)
+    setVulnerabilities(data)
   }
 
   const getAlertsSummary = async () => {
     setSummaryLoading(true)
     const { data } = await axios.get('/api/alerts/summary', {
       params: {
-        url,
+        url: `${protocolo}${url}`,
       },
     })
     setSummaryLoading(false)
     setSummary(data)
   }
+
+  const removeHttp = (url: string) => {
+    return url.replace(/^https?:\/\//, '');
+  }
+
+  const numberOfVulnerabilitiesFound = () => {
+    return summary.High + summary.Informational + summary.Low + summary.Medium;
+  }
+
+  const filterTable = () => {
+    const _vulnerabilitiesFiltered = vulnerabilities.filter(teste => teste.risk === chosenFilter);
+    console.log('_vulnerabilitiesFiltered', _vulnerabilitiesFiltered);
+    setVulnerabilitiesFiltered(_vulnerabilitiesFiltered);
+  }
+
+  useEffect(() => {
+    if (chosenFilter == '') return;
+    filterTable();
+  }, [chosenFilter])
 
   return (
     <Container className={styles.containerHome} maxWidth="lg">
@@ -146,20 +176,28 @@ export default function Home() {
           </Box>
           <Box className={styles.body}>
             <Box className={styles.search}>
+              <select value={protocolo} defaultValue={protocolo} onChange={e => setProtocolo(e.target.value)}>
+                <option value="https://">https://</option>
+                <option value="http://">http://</option>
+              </select>
               <input
                 disabled={scanId !== '' && progress !== '100%'}
                 className={styles.inputLinkInstituicao}
-                placeholder="https://www.siteinstitucional.br"
+                placeholder="www.siteinstitucional.br"
                 type="text"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
+                value={removeHttp(url)}
+                onChange={(e) =>
+                  setUrl(removeHttp(e.target.value))
+                }
               />
               <button
                 disabled={scanId !== '' && progress !== '100%'}
                 className={styles.buttonVerificar}
                 onClick={startScan}
               >
-                Verificar
+                {scanId !== '' && progress !== '100%' ? (
+                  <CircularProgress size="1rem" sx={{ color: 'grey.500' }} color="inherit" />
+                ) : 'Verificar'}
               </button>
             </Box>
 
@@ -185,7 +223,6 @@ export default function Home() {
               />
               <span style={{ marginLeft: '1rem' }}>{progress}</span>
             </Box>
-
             <Box>
               {summaryLoading && (
                 <LinearProgress
@@ -193,23 +230,70 @@ export default function Home() {
                   variant="query"
                 />
               )}
-              <BarChartRace summary={summary} />
             </Box>
           </Box>
         </Box>
 
-        {alerts.length > 0 && (
+
+        {vulnerabilities.length > 0 ? (
           <Box className={styles.sectionThre}>
             <Box className={styles.header}>RESULTADO DA VERIFICAÇÃO</Box>
             <Box className={styles.body}>
-              <TableCustom
-                rows={alerts}
-                page={page}
-                rowsPerPage={rowsPerPage}
-                handleChangeRowsPerPage={handleChangeRowsPerPage}
-                handleChangePage={handleChangePage}
-                key="table1"
-              />
+              {vulnerabilities.length > 0 && (
+                <Typography>
+                  A verificação encontrou cerca de
+                  <Box component='strong'>{` ${numberOfVulnerabilitiesFound()} `}</Box>
+                  vunerabilidades para o site
+                  <Box component='strong'>{` ${removeHttp(url)}`}</Box>.
+                  Abaixo, um gráfico categorizado pelo grau de risco
+                  de todas as vunerabildiades encontradas. Para filtrar a tabela,
+                  clique no rescpectivo grau de risco.
+                </Typography>
+              )}
+              <BarChartRace NumberOfVulnerabilitiesFound={vulnerabilities.length} setChosenFilter={setChosenFilter} summary={summary} />
+              <br />
+              {vulnerabilities.length > 0 && (
+                <>
+                  <Box sx={{ marginBottom: '16px' }}>Filtrado por: {chosenFilter != '' ? (
+                    <Chip
+                      label={translateRisk(chosenFilter)}
+                      onDelete={handleDelete}
+                    />
+                  ) : (
+                    <Chip
+                      label="Nenhum filtro selecionado"
+                    />
+                  )}</Box>
+                </>
+              )}
+              {vulnerabilitiesFiltered.length > 0 ? (
+                <TableCustom
+                  vulnerabilities={vulnerabilitiesFiltered}
+                  page={page}
+                  rowsPerPage={rowsPerPage}
+                  handleChangeRowsPerPage={handleChangeRowsPerPage}
+                  handleChangePage={handleChangePage}
+                  key="table1"
+                />
+              ) : (
+                <TableCustom
+                  vulnerabilities={vulnerabilities}
+                  page={page}
+                  rowsPerPage={rowsPerPage}
+                  handleChangeRowsPerPage={handleChangeRowsPerPage}
+                  handleChangePage={handleChangePage}
+                  key="table2"
+                />
+              )}
+
+              <PdfGenerator data={{}} />
+            </Box>
+          </Box>
+        ) : (
+          <Box className={styles.sectionThre}>
+            <Box className={styles.header}>RESULTADO DA VERIFICAÇÃO</Box>
+            <Box className={styles.body}>
+              Inicie uma verificação para obter os resutados!
             </Box>
           </Box>
         )}

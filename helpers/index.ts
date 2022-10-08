@@ -4,3 +4,15 @@ export const isValidUrl = (url: string) => {
   )
   return pattern.test(url)
 }
+
+export const translateRisk = (risk: string) => {
+  if (risk === 'High') {
+    return 'Alto';
+  } else if (risk === 'Low') {
+    return 'Baixo';
+  } else if (risk === 'Medium') {
+    return 'Médio';
+  } else {
+    return 'Informacional';
+  }
+}

@@ -1,32 +1,38 @@
+import { translateRisk } from '@/helpers'
+import { Box } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import { Flipper, Flipped } from 'react-flip-toolkit'
+import styles from './BarChartRace.module.scss'
 
 export type BarChartRaceProps = {
   summary: Summary
+  setChosenFilter: (newValue: string) => void
+  NumberOfVulnerabilitiesFound: number
 }
 
 export type Summary = {
-    High: number
-    Low: number
-    Medium: number
-    Informational: number
+  High: number
+  Low: number
+  Medium: number
+  Informational: number
 }
 
 export type Data = {
+  id: number
   color: string
   value: number
   title: string
 }
 
-export const BarChartRace = ({ summary }: BarChartRaceProps) => {
+export const BarChartRace = ({ summary, setChosenFilter, NumberOfVulnerabilitiesFound }: BarChartRaceProps) => {
   const [data, setData] = useState<Data[]>([])
 
   const toName = (key: string) => {
     return {
-      High: 'Alto',
-      Low: 'Baixo',
-      Medium: 'Médio',
-      Informational: 'Informacional',
+      High: 'High',
+      Low: 'Low',
+      Medium: 'Medium',
+      Informational: 'Informational',
     }[key]
   }
 
@@ -48,8 +54,9 @@ export const BarChartRace = ({ summary }: BarChartRaceProps) => {
   useEffect(() => {
     const sortSummary = Object.entries(summary).sort((a, b) => b[1] - a[1])
     const data = new Array<Data>()
-    sortSummary.map(([key, value]) => {
+    sortSummary.map(([key, value], idx) => {
       data.push({
+        id: idx,
         color: toColor(key) as string,
         value,
         title: toName(key) as string,
@@ -62,7 +69,7 @@ export const BarChartRace = ({ summary }: BarChartRaceProps) => {
     <Flipper flipKey={data.map((item) => item.id).join('')}>
       <div
         style={{
-          backgroundColor: '#5d5d5d',
+          backgroundColor: 'rgba(0, 0, 0, 0.08)',
           borderRadius: '8px',
           padding: '16px 16px 16px 0',
           marginTop: '16px',
@@ -70,25 +77,22 @@ export const BarChartRace = ({ summary }: BarChartRaceProps) => {
       >
         {data.map((item, index) => (
           <Flipped key={index} flipId={index}>
-            <div
-              style={{
-                transition: 'width 2s',
-                width: toWidth(item.value) + '%',
-                minWidth: '9.375rem',
-                background: item.color,
-                opacity: item.value === 0 ? 0.5 : 1,
-                height: '1.875rem',
-                display: 'flex',
-                alignItems: 'center',
-                padding: '.25rem',
-                margin: '.5rem 0',
-                borderRadius: '0 1rem 1rem 0',
-              }}
-            >
-              <strong
-                style={{ marginLeft: '8px', color: 'white', fontSize: '0.75rem' }}
-              >{`${item.title} (${item.value})`}</strong>
-            </div>
+            <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+              <div
+                className={NumberOfVulnerabilitiesFound <= 0 || item.value <= 0 ? styles.containerRiskBar : styles.containerRiskBarHover}
+                onClick={() => NumberOfVulnerabilitiesFound > 0 && item.value > 0 && setChosenFilter(item.title)}
+                style={{
+                  width: toWidth(item.value) + '%',
+                  background: item.color,
+                  opacity: item.value === 0 ? 0.5 : 1,
+                }}
+              >
+                <strong
+                  style={{ marginLeft: '8px', color: 'white', fontSize: '0.75rem' }}
+                >{`${translateRisk(item.title)} (${item.value})`}</strong>
+              </div>
+              {/* <div className={styles.filterClose} onClick={() => setChosenFilter('')}>X</div> */}
+            </Box>
           </Flipped>
         ))}
       </div>
