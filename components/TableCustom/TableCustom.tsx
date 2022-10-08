@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
 import {
+  Box,
   Paper,
   Table,
   TableBody,
@@ -11,7 +12,7 @@ import {
 } from '@mui/material'
 
 interface Column {
-  id: 'risk' | 'alert' | 'description' | 'solution' | 'references'
+  id: 'risk' | 'alert' | 'description' | 'solution' | 'url'
   label: string
   minWidth?: number
 }
@@ -21,7 +22,7 @@ const columns: readonly Column[] = [
   { id: 'alert', label: 'Título', minWidth: 150 },
   { id: 'description', label: 'Descrição' },
   { id: 'solution', label: 'Solução' },
-  { id: 'references', label: 'Link' },
+  { id: 'url', label: 'Link' },
 ]
 
 interface PropsTableCustom {
@@ -101,17 +102,11 @@ export const TableCustom = ({
                           {column.id === 'risk' ? (
                             <RiskLabel typeRisk={`${value}`} />
                           ) : null}
-                          {column.id !== 'references' && column.id !== 'risk'
+                          {column.id !== 'url' && column.id !== 'risk'
                             ? value
                             : null}
-                          {column.id === 'references' ? (
-                            <ul>
-                              {value
-                                ?.split('\n')
-                                .map((item: any, index: number) => (
-                                  <li key={index}>{item}</li>
-                                ))}
-                            </ul>
+                          {column.id === 'url' ? (
+                            <Box>{value}</Box>
                           ) : null}
                         </TableCell>
                       )
@@ -123,7 +118,7 @@ export const TableCustom = ({
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[5, 10, 20]}
+        rowsPerPageOptions={[5, 10, 20, 40]}
         component="div"
         count={vulnerabilities.length}
         rowsPerPage={rowsPerPage}
