@@ -125,7 +125,6 @@ export default function Home() {
     const { data } = await axios.get('/api/alerts', {
       params: {
         url: `${protocolo}${url}`,
-        first: searchComplete,
       },
     })
     setVulnerabilities(data)
@@ -158,7 +157,7 @@ export default function Home() {
   useEffect(() => {
     if (chosenFilter == '') return;
     filterTable();
-  }, [chosenFilter])
+  }, [])
 
   useEffect(() => {
     console.log(vulnerabilities)

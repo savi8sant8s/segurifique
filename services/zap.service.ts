@@ -34,12 +34,10 @@ export async function spiderStatus(scanId: string) {
   return response.data
 }
 
-export async function urlAlerts(baseurl: string, first = true) {
-  const moreParams = first ? { start: 0, count: 10 } : {}
+export async function urlAlerts(baseurl: string) {
   const response = await axios_.get(`/JSON/alert/view/alerts`, {
     params: {
       baseurl,
-      ...moreParams,
     },
   })
   return response.data

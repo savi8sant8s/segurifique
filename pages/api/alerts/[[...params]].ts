@@ -5,11 +5,8 @@ import { applyRateLimit } from '@/middlewares';
 @UseMiddleware(applyRateLimit)
 class AlertsHandler {
   @Get()
-  async urlAlerts(
-    @Query('url') url: string,
-    @Query('first') first: boolean
-  ) {
-    const { alerts } = await urlAlerts(url, first)
+  async urlAlerts(@Query('url') url: string) {
+    const { alerts } = await urlAlerts(url)
     for (let i = 0; i < alerts.length; i++) {
       const translatedAlert = await getTranslatedAlert(alerts[i].alertRef)
       if (translatedAlert) {
