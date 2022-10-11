@@ -51,20 +51,20 @@ export const TableCustom = ({
   const RiskLabel = ({ typeRisk }: IRiskLabel) => {
     if (typeRisk === 'High') {
       return <React.Fragment>
-        <strong style={{ color: 'red' }}>Alto</strong>
+        <Box component='strong' style={{ color: 'red' }}>Alto</Box>
       </React.Fragment>
     } else if (typeRisk === 'Medium') {
       return <React.Fragment>
-        <strong style={{ color: 'orange' }}>Médio</strong>
+        <Box component='strong' style={{ color: 'orange' }}>Médio</Box>
       </React.Fragment>
     } else if (typeRisk === 'Low') {
       return <React.Fragment>
-        <strong style={{ color: 'green' }}>Baixo</strong>
+        <Box component='strong' style={{ color: 'green' }}>Baixo</Box>
       </React.Fragment>
     } else if (typeRisk === 'Informational') {
     }
     return <React.Fragment>
-      <strong style={{ color: 'blue' }}>Informacional</strong>
+      <Box component='strong' style={{ color: 'blue' }}>Informacional</Box>
     </React.Fragment>
   }
 

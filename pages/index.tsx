@@ -12,16 +12,12 @@ import {
   LinearProgress,
   MenuItem,
   Stack,
-  Tab,
-  Tabs,
   TextField,
   Tooltip,
   Typography,
 } from '@mui/material'
-import { BarChartRace, Summary, TableCustom } from '@/components'
+import { BarChartRace, Summary, TableCustom, PdfGenerator } from '@/components'
 import { isValidUrl, translateRisk } from '@/helpers'
-import { PdfGenerator } from '@/components/PdfGenerator/PdfGenerator'
-import { TabPanel } from '@/components/TabPanel/TabPanel'
 
 export default function Home() {
   const [url, setUrl] = useState('')
@@ -41,18 +37,7 @@ export default function Home() {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
   const [searchComplete, setSearchComplete] = useState(true)
-
-  const [value, setValue] = React.useState(0);
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
-    if (newValue === 0) {
-      console.log('searchComplete', searchComplete);
-      setSearchComplete(true);
-    } else {
-      console.log('searchComplete', searchComplete);
-      setSearchComplete(false);
-    }
-  };
+  const [modalState, setModalState] = React.useState(false);
 
   const handleDelete = () => {
     setChosenFilter('');
@@ -150,18 +135,15 @@ export default function Home() {
   }
 
   const filterTable = () => {
-    const _vulnerabilitiesFiltered = vulnerabilities.filter(teste => teste.risk === chosenFilter);
+    // console.log(vulnerabilities)
+    const _vulnerabilitiesFiltered = vulnerabilities.filter((teste: any) => teste.risk === chosenFilter);
     setVulnerabilitiesFiltered(_vulnerabilitiesFiltered);
   }
 
   useEffect(() => {
     if (chosenFilter == '') return;
     filterTable();
-  }, [])
-
-  useEffect(() => {
-    console.log(vulnerabilities)
-  }, [vulnerabilities])
+  }, [chosenFilter])
 
   return (
     <Container className={styles.containerHome} maxWidth="lg">
@@ -196,97 +178,42 @@ export default function Home() {
             </Tooltip>
           </Box>
           <Box className={styles.body}>
-            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-              <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-                <Tab label="Verificação Rápida" />
-                <Tab label="Verificação Completa" />
-              </Tabs>
+            <Box className={styles.search}>
+              <TextField
+                id="outlined-select-currency"
+                className={styles.inputSelectProtocolo}
+                select
+                label="Protocolo"
+                value={protocolo}
+                onChange={e => setProtocolo(e.target.value)}
+              >
+                <MenuItem key='https://' value='https://'>https://</MenuItem>
+                <MenuItem key='http://' value='http://'>http://</MenuItem>
+              </TextField>
+              <TextField
+                size="medium"
+                id="outlined-basic"
+                className={styles.inputLinkInstituicao}
+                label="Site Institucional"
+                variant="outlined"
+                disabled={scanId !== '' && progress !== '100%'}
+                placeholder="www.siteinstitucional.br"
+                value={removeHttp(url)}
+                onChange={(e) =>
+                  setUrl(removeHttp(e.target.value))
+                }
+              />
+              <Button
+                variant="outlined"
+                disabled={scanId !== '' && progress !== '100%'}
+                onClick={startScan}
+                className={styles.buttonVerificar}
+              >
+                {scanId !== '' && progress !== '100%' ? (
+                  <CircularProgress size="1rem" sx={{ color: 'grey.500' }} color="inherit" />
+                ) : 'Verificar'}
+              </Button>
             </Box>
-
-            <TabPanel value={value} index={0}>
-              <Box component='span'>
-                Executaremos uma verificação rápida, mostrando no relatório apenas uma amostra das vulnerabilidades encontradas.
-              </Box>
-              <Box className={styles.search}>
-                <TextField
-                  id="outlined-select-currency"
-                  className={styles.inputSelectProtocolo}
-                  select
-                  label="Protocolo"
-                  value={protocolo}
-                  onChange={e => setProtocolo(e.target.value)}
-                >
-                  <MenuItem key='https://' value='https://'>https://</MenuItem>
-                  <MenuItem key='http://' value='http://'>http://</MenuItem>
-                </TextField>
-                <TextField
-                  size="medium"
-                  id="outlined-basic"
-                  className={styles.inputLinkInstituicao}
-                  label="Site Institucional"
-                  variant="outlined"
-                  disabled={scanId !== '' && progress !== '100%'}
-                  placeholder="www.siteinstitucional.br"
-                  value={removeHttp(url)}
-                  onChange={(e) =>
-                    setUrl(removeHttp(e.target.value))
-                  }
-                />
-                <Button
-                  variant="outlined"
-                  disabled={scanId !== '' && progress !== '100%'}
-                  onClick={startScan}
-                  className={styles.buttonVerificar}
-                >
-                  {scanId !== '' && progress !== '100%' ? (
-                    <CircularProgress size="1rem" sx={{ color: 'grey.500' }} color="inherit" />
-                  ) : 'Verificar'}
-                </Button>
-              </Box>
-            </TabPanel>
-
-            <TabPanel value={value} index={1}>
-              <Box component='span'>
-                Executaremos uma verificação completa, mostrando no relatório todas as vulnerabilidades encontradas.
-              </Box>
-              <Box className={styles.search}>
-                <TextField
-                  id="outlined-select-currency"
-                  className={styles.inputSelectProtocolo}
-                  select
-                  label="Protocolo"
-                  value={protocolo}
-                  onChange={e => setProtocolo(e.target.value)}
-                >
-                  <MenuItem key='https://' value='https://'>https://</MenuItem>
-                  <MenuItem key='http://' value='http://'>http://</MenuItem>
-                </TextField>
-                <TextField
-                  size="medium"
-                  id="outlined-basic"
-                  className={styles.inputLinkInstituicao}
-                  label="Site Institucional"
-                  variant="outlined"
-                  disabled={scanId !== '' && progress !== '100%'}
-                  placeholder="www.siteinstitucional.br"
-                  value={removeHttp(url)}
-                  onChange={(e) =>
-                    setUrl(removeHttp(e.target.value))
-                  }
-                />
-                <Button
-                  variant="outlined"
-                  disabled={scanId !== '' && progress !== '100%'}
-                  onClick={startScan}
-                  className={styles.buttonVerificar}
-                >
-                  {scanId !== '' && progress !== '100%' ? (
-                    <CircularProgress size="1rem" sx={{ color: 'grey.500' }} color="inherit" />
-                  ) : 'Verificar'}
-                </Button>
-              </Box>
-            </TabPanel>
-
             <Typography variant="body1" className={styles.information}>
               - Buscaremos por vulnerabilidades através do
               <Box
@@ -303,23 +230,14 @@ export default function Home() {
             </Typography>
             <Box sx={{ width: '100%' }} className={styles.progressBar}>
               <LinearProgress
-                style={{ width: '95%' }}
+                className={styles.linearProgress}
                 variant="determinate"
                 value={Number(progress.slice(0, -1))}
               />
               <Box component='span' style={{ marginLeft: '1rem' }}>{progress}</Box>
             </Box>
-            <Box>
-              {summaryLoading && (
-                <LinearProgress
-                  style={{ width: '100%', marginTop: '0.5rem' }}
-                  variant="query"
-                />
-              )}
-            </Box>
           </Box>
         </Box>
-
 
         {vulnerabilities.length > 0 ? (
           <Box className={styles.sectionThre}>
@@ -327,13 +245,12 @@ export default function Home() {
             <Box className={styles.body}>
               {vulnerabilities.length > 0 && (
                 <Typography>
-                  A verificação encontrou cerca de
+                  A verificação conseguiu encontrar cerca de
                   <Box component='strong'>{` ${numberOfVulnerabilitiesFound()} `}</Box>
-                  vunerabilidades para o site
-                  <Box component='strong'>{` ${removeHttp(url)}`}</Box>.
+                  vunerabilidades.
                   Abaixo, um gráfico categorizado pelo grau de risco
                   de todas as vunerabildiades encontradas. Para filtrar a tabela,
-                  clique no rescpectivo grau de risco.
+                  clique no respectivo grau de risco mostrado no gráfico.
                 </Typography>
               )}
               <BarChartRace
@@ -343,22 +260,36 @@ export default function Home() {
               />
               <br />
               {vulnerabilities.length > 0 && (
-                <>
+                <Stack direction='row'
+                  sx={{
+                    alignItems: 'center',
+                    marginBottom: '1rem',
+                    justifyContent: 'space-between'
+                  }}
+                >
+                  <Button
+                    variant="outlined"
+                    onClick={() => setModalState(true)}
+                    className={styles.buttonRelatorioCompleto}
+                  >
+                    VER RELATÓRIO COMPLETO
+                  </Button>
                   <Box>
-
-                  </Box>
-                  <Box sx={{ marginBottom: '16px' }}>Filtrado por:
+                    Filtrado por:
                     {chosenFilter != '' ? (
                       <Chip
                         label={translateRisk(chosenFilter)}
                         onDelete={handleDelete}
+                        sx={{ marginLeft: '8px' }}
                       />
                     ) : (
                       <Chip
                         label="Nenhum filtro selecionado"
+                        sx={{ marginLeft: '8px' }}
                       />
-                    )}</Box>
-                </>
+                    )}
+                  </Box>
+                </Stack>
               )}
               {vulnerabilitiesFiltered.length > 0 ? (
                 <TableCustom
@@ -377,14 +308,14 @@ export default function Home() {
                   handleChangePage={handleChangePage}
                 />
               )}
-              <PdfGenerator data={{}} />
+              <PdfGenerator modalState={modalState} setModalState={setModalState} data={{}} />
             </Box>
           </Box>
         ) : (
           <Box className={styles.sectionThre}>
             <Box className={styles.header}>RESULTADO DA VERIFICAÇÃO</Box>
             <Box className={styles.body}>
-              Inicie uma verificação para obter os resutados!
+              Inicie uma verificação para obter os resultados!
             </Box>
           </Box>
         )}

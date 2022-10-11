@@ -5,27 +5,30 @@ import Pdf from "react-to-pdf";
 
 interface Idata {
     data: any;
+    modalState: boolean;
+    setModalState: (newValue: boolean) => void;
 }
 
-export const PdfGenerator = ({ data }: Idata) => {
+export const PdfGenerator = ({ data, modalState, setModalState }: Idata) => {
     const ref = useRef<HTMLDivElement>(null);
-    const [open, setOpen] = React.useState(false);
-    const handleOpen = () => setOpen(true);
-    const handleClose = () => setOpen(false);
+    const handleClose = () => setModalState(false);
 
-    const teste = (toPdf: any) => {
-        document.getElementById('pdfView').style.height = 'auto';
+    const downloadPdf = (toPdf: any) => {
+        if (document.getElementById('pdfView') === null) return;
+        console.log('document.getElementById', document.getElementById('pdfView'));
+        document.getElementById('pdfView')!.style.height = 'auto';
         toPdf();
         setTimeout(() => {
-            document.getElementById('pdfView').style.height = '80vh';
+            document.getElementById('pdfView')!.style.height = '80vh';
         }, 1000)
+
     }
 
-    const RiskDetails = ({ ...props }: any) => {
+    const RiskDetails = ({ risk }: any) => {
         return (
             <Box className={styles.bodyRisck}>
                 <Typography className={styles.title}>
-                    <Box component='strong'>{props.risk}</Box> - Lorem Ipsum is simply dummy text of the printing and typesetting industry
+                    <Box component='strong'>{risk}</Box> - Lorem Ipsum is simply dummy text of the printing and typesetting industry
                 </Typography>
                 <br />
                 <Typography className={styles.Descrição}>
@@ -40,17 +43,23 @@ export const PdfGenerator = ({ data }: Idata) => {
     }
 
     return (
-        <div>
-            <button onClick={handleOpen}>VER RELATÓRIO COMPLETO</button>
+        <Box>
             <Modal
-                open={open}
+                open={modalState}
                 onClose={handleClose}
                 aria-labelledby="modal-modal-title"
                 aria-describedby="modal-modal-description"
             >
                 <Box className={styles.modal}>
                     <Pdf targetRef={ref} filename="relatorio.pdf">
-                        {({ toPdf }: any) => <button onClick={() => teste(toPdf)}>BAIXAR RELATÓRIO EM PDF</button>}
+                        {({ toPdf }: any) =>
+                            <Button
+                                variant="outlined"
+                                onClick={() => downloadPdf(toPdf)}
+                            >
+                                BAIXAR RELATÓRIO EM PDF
+                            </Button>
+                        }
                     </Pdf>
                     <Box id='pdfView' className={styles.pdfContainer} ref={ref}>
                         <Typography variant='h4'>
@@ -68,9 +77,8 @@ export const PdfGenerator = ({ data }: Idata) => {
                         )
                         )}
                     </Box>
-
                 </Box>
             </Modal>
-        </div>
+        </Box>
     );
 }

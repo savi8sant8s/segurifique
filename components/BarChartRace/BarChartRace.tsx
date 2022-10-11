@@ -67,7 +67,7 @@ export const BarChartRace = ({ summary, setChosenFilter, NumberOfVulnerabilities
 
   return (
     <Flipper flipKey={data.map((item) => item.id).join('')}>
-      <div
+      <Box
         style={{
           backgroundColor: 'rgba(0, 0, 0, 0.08)',
           borderRadius: '8px',
@@ -78,7 +78,7 @@ export const BarChartRace = ({ summary, setChosenFilter, NumberOfVulnerabilities
         {data.map((item, index) => (
           <Flipped key={index} flipId={index}>
             <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-              <div
+              <Box
                 className={NumberOfVulnerabilitiesFound <= 0 || item.value <= 0 ? styles.containerRiskBar : styles.containerRiskBarHover}
                 onClick={() => NumberOfVulnerabilitiesFound > 0 && item.value > 0 && setChosenFilter(item.title)}
                 style={{
@@ -87,15 +87,17 @@ export const BarChartRace = ({ summary, setChosenFilter, NumberOfVulnerabilities
                   opacity: item.value === 0 ? 0.5 : 1,
                 }}
               >
-                <strong
+                <Box
+                  component='strong'
                   style={{ marginLeft: '8px', color: 'white', fontSize: '0.75rem' }}
-                >{`${translateRisk(item.title)} (${item.value})`}</strong>
-              </div>
-              {/* <div className={styles.filterClose} onClick={() => setChosenFilter('')}>X</div> */}
+                >
+                  {`${translateRisk(item.title)} (${item.value})`}
+                </Box>
+              </Box>
             </Box>
           </Flipped>
         ))}
-      </div>
+      </Box>
     </Flipper>
   )
 }
