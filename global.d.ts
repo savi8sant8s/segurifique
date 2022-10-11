@@ -1,1 +1,1 @@
-// declare module "racing-bars-chart";
+declare module 'react-to-pdf'

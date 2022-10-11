@@ -1,245 +1,322 @@
-import { useRef, useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import styles from './Home.module.scss'
 import axios from 'axios'
-import { Box, Container, LinearProgress, Stack, Typography } from '@mui/material'
-import { BarChartRace, TableCustom } from '../components';
-
-interface Data {
-  risco: string;
-  titulo: string;
-  descricao: string;
-  solucao: string;
-  link: string;
-}
-
-function createData(
-  risco: string,
-  titulo: string,
-  descricao: string,
-  solucao: string,
-  link: string,
-): Data {
-  return { risco, titulo, descricao, solucao, link };
-}
-
-const rows = [
-  createData(
-    'Alto',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
-    'https://www.google.com.br/?gws_rd=cr&ei=qBsTWZ3lEIqowgSp9Je4CA'),
-  createData(
-    'Informacional',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
-    'icone2'),
-  createData(
-    'Médio',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
-    'icone'),
-  createData(
-    'Baixo',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
-    'icone'),
-  createData(
-    'Alto',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
-    'icone'),
-  createData(
-    'Alto',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
-    'icone'),
-  createData(
-    'Alto',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
-    'icone'),
-  createData(
-    'Alto',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
-    'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged',
-    'icone'),
-];
+import InfoIcon from '@mui/icons-material/Info'
+import {
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  Container,
+  IconButton,
+  LinearProgress,
+  MenuItem,
+  Stack,
+  TextField,
+  Tooltip,
+  Typography,
+} from '@mui/material'
+import { BarChartRace, Summary, TableCustom, PdfGenerator } from '@/components'
+import { isValidUrl, translateRisk } from '@/helpers'
 
 export default function Home() {
   const [url, setUrl] = useState('')
   const [scanId, setScanId] = useState('')
-  const [progress, setProgress] = useState('')
-  const [summary, setSummary] = useState<any>({})
-  const [alerts, setAlerts] = useState<any>([])
-  const intervalRef = useRef<number | null>(null)
-  const [progress2, setProgress2] = useState(0);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [progress, setProgress] = useState<string>('0%')
+  const [summary, setSummary] = useState<Summary>({
+    High: 0,
+    Medium: 0,
+    Low: 0,
+    Informational: 0,
+  })
+  const [protocolo, setProtocolo] = useState('https://')
+  const [vulnerabilities, setVulnerabilities] = useState<object[]>([])
+  const [vulnerabilitiesFiltered, setVulnerabilitiesFiltered] = useState<object[]>([])
+  const [chosenFilter, setChosenFilter] = useState('')
+  const [page, setPage] = useState(0)
+  const [rowsPerPage, setRowsPerPage] = useState(10)
+  const [searchComplete, setSearchComplete] = useState(true)
+  const [modalState, setModalState] = React.useState(false);
+
+  const handleDelete = () => {
+    setChosenFilter('');
+    setVulnerabilitiesFiltered([]);
+  };
 
   const handleChangePage = (event: unknown, newPage: number) => {
-    setPage(newPage);
-  };
+    setPage(newPage)
+  }
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(+event.target.value);
-    setPage(0);
-  };
+  const clearFormAndInfo = (clearOnlyResults = false) => {
+    if (clearOnlyResults) {
+      setVulnerabilities([])
+      setSummary({
+        High: 0,
+        Medium: 0,
+        Low: 0,
+        Informational: 0,
+      })
+      return
+    }
+    setUrl('')
+    setScanId('')
+    setProgress('0%')
+  }
 
-  // useEffect(() => {
-  //   const timer = setInterval(() => {
-  //     setProgress2((oldProgress) => {
-  //       if (oldProgress === 100) {
-  //         return 0;
-  //       }
-  //       const diff = Math.random() * 10;
-  //       return Math.min(oldProgress + diff, 100);
-  //     });
-  //   }, 500);
-
-  //   return () => {
-  //     clearInterval(timer);
-  //   };
-  // }, []);
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setRowsPerPage(+event.target.value)
+    setPage(0)
+  }
 
   const startScan = async () => {
-    axios.get(`/api/scan?url=${url}`).then((res) => {
-      setScanId(res.data.scan)
-      intervalRef.current = window.setInterval(async () => {
-        await scanStatus(res.data.scan)
-      }, 1000)
-    })
-  }
-
-  const stopScan = async () => {
-    axios.put(`/api/scan/stop/${scanId}`).then(() => {
-      setScanId('')
-      setProgress('')
-      setSummary(null)
-      setUrl('')
-    })
-  }
-
-  const scanStatus = async (scanId: string) => {
-    axios.get(`/api/scan/status/${scanId}`).then(async (res) => {
-      setProgress(res.data.status)
-      if (res.data.status === '100' && intervalRef.current) {
-        window.clearInterval(intervalRef.current)
-        await getAlertsSummary(url)
-        await getAlerts(url)
+    const validUrl = isValidUrl(`${protocolo}${url}`);
+    if (!validUrl) {
+      alert('URL inválida. Verifique e tente novamente.')
+    } else {
+      clearFormAndInfo(true)
+      try {
+        const { data } = await axios.get(`/api/scan?url=${protocolo}${url}`)
+        if (data.status === 'SCANNED') {
+          setProgress('100%')
+          setTimeout(async () => {
+            await getAlertsSummary()
+            await getFirstAlerts()
+          }, 1000)
+        } else {
+          setScanId(data.scan)
+          await getStatus(data.scan)
+        }
+      } catch (error: any) {
+        alert(error.response.data.message)
       }
-    })
-  }
-
-  const getAlertsSummary = async (url: string) => {
-    axios.get(`/api/alerts/summary?url=${url}`).then((res) => {
-      setSummary(res.data)
-    })
-  }
-
-  const getAlerts = async (url: string) => {
-    axios.get(`/api/alerts?url=${url}`).then((res) => {
-      setAlerts(res.data)
-    })
-  }
-
-  const OptionButton = () => {
-    if (!!scanId) {
-      return <button className={styles.buttonVerificar} onClick={stopScan}>INTERROMPER</button>
     }
-    return <button className={styles.buttonVerificar} onClick={startScan}>VERIFICAR</button>
   }
+
+  const getStatus = async (scanId: string) => {
+    const { data } = await axios.get(`/api/scan/status/${scanId}`)
+    setProgress(data.status + '%')
+    if (data.status === '100') {
+      await getAlertsSummary()
+      await getFirstAlerts()
+    } else {
+      await getStatus(scanId)
+    }
+  }
+
+  const getFirstAlerts = async () => {
+    const { data } = await axios.get('/api/alerts', {
+      params: {
+        url: `${protocolo}${url}`,
+      },
+    })
+    setVulnerabilities(data)
+  }
+
+  const getAlertsSummary = async () => {
+    const { data } = await axios.get('/api/alerts/summary', {
+      params: {
+        url: `${protocolo}${url}`,
+      },
+    })
+    setSummary(data)
+  }
+
+  const removeHttp = (url: string) => {
+    return url.replace(/^https?:\/\//, '');
+  }
+
+  const numberOfVulnerabilitiesFound = () => {
+    return summary.High + summary.Informational + summary.Low + summary.Medium;
+  }
+
+  const filterTable = () => {
+    // console.log(vulnerabilities)
+    const _vulnerabilitiesFiltered = vulnerabilities.filter((teste: any) => teste.risk === chosenFilter);
+    setVulnerabilitiesFiltered(_vulnerabilitiesFiltered);
+  }
+
+  useEffect(() => {
+    if (chosenFilter == '') return;
+    filterTable();
+  }, [chosenFilter])
 
   return (
     <Container className={styles.containerHome} maxWidth="lg">
       <Stack>
+
         <Box className={styles.sectionOne}>
-          <Typography variant='h4' sx={{ fontWeight: 'bold' }}>
-            VERIFICADOR AUTOMÁTICO DE <Box component='span' sx={{ color: '#EC2026' }}>VULNERABILIDADES</Box> EM SITES INSTITUCIONAIS
+          <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+            VERIFICADOR AUTOMÁTICO DE{' '}
+            <Box component="span" sx={{ color: '#EC2026' }}>
+              VULNERABILIDADES
+            </Box>{' '}
+            EM SITES INSTITUCIONAIS
           </Typography>
-          <Typography variant='body1'>
-            Obtenha uma verificação de segurança para sites institucionais e saiba as vulnerabilidades que nele possue, bem como as maneiras de soluciona-las.
+          <Typography variant="body1">
+            Obtenha uma verificação de segurança para sites institucionais e
+            saiba as vulnerabilidades que nele possui, bem como as maneiras de
+            solucioná-las.
           </Typography>
-        </Box >
+        </Box>
 
         <Box className={styles.sectionTwo}>
           <Box className={styles.header}>
-            EXECUTE UMA VERIFICAÇÃO DE SEGURANÇA ABAIXO
+            EXECUTE UMA VERIFICAÇÃO BÁSICA DE SEGURANÇA ABAIXO
+            <Tooltip
+              title={
+                'Busca não recursiva, restringida a sub-árvore do site e com números de filhos verificados igual a 1.'
+              }
+            >
+              <IconButton>
+                <InfoIcon color="primary" />
+              </IconButton>
+            </Tooltip>
           </Box>
           <Box className={styles.body}>
             <Box className={styles.search}>
-              <input className={styles.inputLinkInstituicao} placeholder='https://www.siteinstitucional.com/' type="text" value={url} onChange={(e) => setUrl(e.target.value)} />
-              <OptionButton />
+              <TextField
+                id="outlined-select-currency"
+                className={styles.inputSelectProtocolo}
+                select
+                label="Protocolo"
+                value={protocolo}
+                onChange={e => setProtocolo(e.target.value)}
+              >
+                <MenuItem key='https://' value='https://'>https://</MenuItem>
+                <MenuItem key='http://' value='http://'>http://</MenuItem>
+              </TextField>
+              <TextField
+                size="medium"
+                id="outlined-basic"
+                className={styles.inputLinkInstituicao}
+                label="Site Institucional"
+                variant="outlined"
+                disabled={scanId !== '' && progress !== '100%'}
+                placeholder="www.siteinstitucional.br"
+                value={removeHttp(url)}
+                onChange={(e) =>
+                  setUrl(removeHttp(e.target.value))
+                }
+              />
+              <Button
+                variant="outlined"
+                disabled={scanId !== '' && progress !== '100%'}
+                onClick={startScan}
+                className={styles.buttonVerificar}
+              >
+                {scanId !== '' && progress !== '100%' ? (
+                  <CircularProgress size="1rem" sx={{ color: 'grey.500' }} color="inherit" />
+                ) : 'Verificar'}
+              </Button>
             </Box>
-            <Box sx={{ width: '100%' }} className={styles.progressBar}>
-              <LinearProgress variant="determinate" value={progress2} />
-            </Box>
-
-            <Box>
-              <BarChartRace />
-            </Box>
-
-            <Typography variant='body1' className={styles.information}>
-              *Buscaremos por vunerabilidades através... Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+            <Typography variant="body1" className={styles.information}>
+              - Buscaremos por vulnerabilidades através do
+              <Box
+                component='a'
+                sx={{ textDecoration: 'none' }}
+                href="https://www.zaproxy.org/"
+              >
+                {' '}
+                OWASP ZAP
+              </Box>
+              , o <Box component='strong'>web scanner mais utilizado do mundo</Box>.<br />-
+              Gratuito, de código aberto e ativamente mantido por uma equipe
+              internacional de voluntários.
             </Typography>
+            <Box sx={{ width: '100%' }} className={styles.progressBar}>
+              <LinearProgress
+                className={styles.linearProgress}
+                variant="determinate"
+                value={Number(progress.slice(0, -1))}
+              />
+              <Box component='span' style={{ marginLeft: '1rem' }}>{progress}</Box>
+            </Box>
           </Box>
         </Box>
 
-        <Box className={styles.sectionThre}>
-          <Box className={styles.header}>
-            RESULTADO DA VERIFICAÇÃO
+        {vulnerabilities.length > 0 ? (
+          <Box className={styles.sectionThre}>
+            <Box className={styles.header}>RESULTADO DA VERIFICAÇÃO</Box>
+            <Box className={styles.body}>
+              {vulnerabilities.length > 0 && (
+                <Typography>
+                  A verificação conseguiu encontrar cerca de
+                  <Box component='strong'>{` ${numberOfVulnerabilitiesFound()} `}</Box>
+                  vunerabilidades.
+                  Abaixo, um gráfico categorizado pelo grau de risco
+                  de todas as vunerabildiades encontradas. Para filtrar a tabela,
+                  clique no respectivo grau de risco mostrado no gráfico.
+                </Typography>
+              )}
+              <BarChartRace
+                NumberOfVulnerabilitiesFound={vulnerabilities.length}
+                setChosenFilter={setChosenFilter}
+                summary={summary}
+              />
+              <br />
+              {vulnerabilities.length > 0 && (
+                <Stack direction='row'
+                  sx={{
+                    alignItems: 'center',
+                    marginBottom: '1rem',
+                    justifyContent: 'space-between'
+                  }}
+                >
+                  <Button
+                    variant="outlined"
+                    onClick={() => setModalState(true)}
+                    className={styles.buttonRelatorioCompleto}
+                  >
+                    VER RELATÓRIO COMPLETO
+                  </Button>
+                  <Box>
+                    Filtrado por:
+                    {chosenFilter != '' ? (
+                      <Chip
+                        label={translateRisk(chosenFilter)}
+                        onDelete={handleDelete}
+                        sx={{ marginLeft: '8px' }}
+                      />
+                    ) : (
+                      <Chip
+                        label="Nenhum filtro selecionado"
+                        sx={{ marginLeft: '8px' }}
+                      />
+                    )}
+                  </Box>
+                </Stack>
+              )}
+              {vulnerabilitiesFiltered.length > 0 ? (
+                <TableCustom
+                  vulnerabilities={vulnerabilitiesFiltered}
+                  page={page}
+                  rowsPerPage={rowsPerPage}
+                  handleChangeRowsPerPage={handleChangeRowsPerPage}
+                  handleChangePage={handleChangePage}
+                />
+              ) : (
+                <TableCustom
+                  vulnerabilities={vulnerabilities}
+                  page={page}
+                  rowsPerPage={rowsPerPage}
+                  handleChangeRowsPerPage={handleChangeRowsPerPage}
+                  handleChangePage={handleChangePage}
+                />
+              )}
+              <PdfGenerator summary={summary} url={`${protocolo}${url}`} modalState={modalState} setModalState={setModalState} data={vulnerabilities} />
+            </Box>
           </Box>
-          <Box className={styles.body}>
-            <TableCustom
-              rows={rows}
-              page={page}
-              rowsPerPage={rowsPerPage}
-              handleChangePage={handleChangePage}
-              handleChangeRowsPerPage={handleChangeRowsPerPage}
-              key='table1'
-            />
+        ) : (
+          <Box className={styles.sectionThre}>
+            <Box className={styles.header}>RESULTADO DA VERIFICAÇÃO</Box>
+            <Box className={styles.body}>
+              Inicie uma verificação para obter os resultados!
+            </Box>
           </Box>
-        </Box>
+        )}
       </Stack>
-      {/* <input type="text" value={url} onChange={(e) => setUrl(e.target.value)} />
-      <OptionButton /> */}
-      {/* {scanId && (
-        <div>
-          <p>Scan ID: {scanId}</p>
-          <p>Status: {progress}</p>
-        </div>
-      )}
-      {progress === '100' && summary && (
-        <>
-          <div>
-            <p>Resumo de vulnerabilidades:</p>
-            <ul>
-              <li>Alta: {summary.High}</li>
-              <li>Média: {summary.Medium}</li>
-              <li>Baixa: {summary.Low}</li>
-              <li>Informacional: {summary.Informational}</li>
-            </ul>
-          </div>
-          <div>
-            <p>Vulnerabilidades</p>
-            {alerts.map((alert: any) => (
-              <div key={alert.id}>
-                <p>Alerta: {alert.alert}</p>
-                <p>Descrição: {alert.description}</p>
-                <p>Solução: {alert.solution}</p>
-                <div style={{ border: '1px solid black' }}></div>
-              </div>
-            ))}
-          </div>
-        </>
-      )} */}
     </Container>
   )
 }

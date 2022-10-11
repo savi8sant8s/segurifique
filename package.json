@@ -1,5 +1,5 @@
 {
-  "name": "ssupe",
+  "name": "segurifique",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -11,20 +11,20 @@
   "dependencies": {
     "@emotion/react": "^11.10.4",
     "@emotion/styled": "^11.10.4",
+    "@mui/icons-material": "^5.10.6",
     "@mui/material": "^5.10.6",
     "@mui/x-data-grid": "^5.17.4",
-    "@types/mui-image": "^1.0.1",
     "axios": "^0.27.2",
-    "chart-race-react": "^1.0.2",
-    "mui-image": "^1.0.7",
+    "express-rate-limit": "^6.6.0",
+    "express-slow-down": "^1.5.0",
     "next": "12.3.1",
     "next-api-decorators": "^2.0.0",
+    "next-secure-headers": "^2.2.0",
     "path-to-regexp": "^6.2.1",
-    "racing-bars-chart": "https://github.com/yunuskorkmaz/racing-bars-chart.git",
     "react": "18.2.0",
-    "react-chart-race": "https://github.com/ugurdalkiran/react-chart-race.git",
     "react-dom": "18.2.0",
     "react-flip-toolkit": "^7.0.16",
+    "react-to-pdf": "^0.0.14",
     "sass": "^1.55.0"
   },
   "devDependencies": {

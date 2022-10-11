@@ -1,0 +1,32 @@
+.containerRiskBar {
+    transition: width 2s;
+    min-width: 7.375rem;
+    height: 1.875rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .25rem;
+    margin: .5rem 0;
+    border-radius: 0 1rem 1rem 0;
+}
+
+.containerRiskBarHover {
+    transition: width 2s;
+    min-width: 7.375rem;
+    height: 1.875rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .25rem;
+    margin: .5rem 0;
+    border-radius: 0 1rem 1rem 0;
+
+    &:hover {
+        background-color: #aeaeae !important;
+        cursor: pointer;
+    }
+}
+
+.filterClose {
+    margin: 0 1rem;
+}

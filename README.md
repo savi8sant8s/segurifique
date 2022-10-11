@@ -12,7 +12,6 @@ Obs.: Owasp ZAP roda na porta 8080
 ZAP_API_KEY=s1g0o2iudmp5hdpdjniq8vjba2
 ZAP_PROXY=http://localhost:8080
 ```
-- Executar: npx prisma migrate dev (para criar o banco de dados)
 - Executar: npm i (para instalar as dependências)
-- Executar: npm run dev (para iniciar a aplicação)
-- Executar (opcional): npx prisma studio (para manipular o banco de dados pelo navegador)
+- Executar: npm run dev (para iniciar a aplicação em desenvolvimento)
+- Executar: npm run build && npm run start (para iniciar a aplicação em produção)
