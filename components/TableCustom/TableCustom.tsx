@@ -10,6 +10,7 @@ import {
   TablePagination,
   TableRow,
 } from '@mui/material'
+import { RiskLabel } from '../RiskLabel/RiskLabel'
 
 interface Column {
   id: 'risk' | 'alert' | 'description' | 'solution' | 'url'
@@ -33,10 +34,6 @@ interface PropsTableCustom {
   handleChangeRowsPerPage: any
 }
 
-interface IRiskLabel {
-  typeRisk: string
-}
-
 export const TableCustom = ({
   vulnerabilities,
   page,
@@ -46,26 +43,6 @@ export const TableCustom = ({
 }: PropsTableCustom) => {
   const defaultLabelDisplayedRows = () => {
     return null
-  }
-
-  const RiskLabel = ({ typeRisk }: IRiskLabel) => {
-    if (typeRisk === 'High') {
-      return <React.Fragment>
-        <Box component='strong' style={{ color: 'red' }}>Alto</Box>
-      </React.Fragment>
-    } else if (typeRisk === 'Medium') {
-      return <React.Fragment>
-        <Box component='strong' style={{ color: 'orange' }}>Médio</Box>
-      </React.Fragment>
-    } else if (typeRisk === 'Low') {
-      return <React.Fragment>
-        <Box component='strong' style={{ color: 'green' }}>Baixo</Box>
-      </React.Fragment>
-    } else if (typeRisk === 'Informational') {
-    }
-    return <React.Fragment>
-      <Box component='strong' style={{ color: 'blue' }}>Informacional</Box>
-    </React.Fragment>
   }
 
   return (

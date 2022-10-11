@@ -5,19 +5,43 @@
     transform: translate(-50%, -50%);
     background-color: white;
     box-shadow: 24;
-
 }
 
 .pdfContainer {
     margin: 16px 24px;
     height: 80vh;
     overflow-y: auto;
+    width: 90vh;
 }
 
 .bodyRisck {
-    margin: 8px 0;
+    margin-bottom: 32px;
 }
 
 .bodyRisck .title {
     font-weight: bold;
+}
+
+.buttonHandleClose {
+    color: #EC2026;
+    border: 1px solid #EC2026;
+
+    &:hover {
+        color: #FFFF;
+        background: #EC2026;
+        border: 1px solid #EC2026;
+        cursor: pointer;
+    }
+}
+
+.buttonDownloadPdf {
+    color: #343434;
+    border: 1px solid #343434;
+
+    &:hover {
+        color: #FFFF;
+        background: #343434;
+        border: 1px solid #343434;
+        cursor: pointer;
+    }
 }

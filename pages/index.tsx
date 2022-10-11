@@ -29,7 +29,6 @@ export default function Home() {
     Low: 0,
     Informational: 0,
   })
-  const [summaryLoading, setSummaryLoading] = useState<boolean>(false)
   const [protocolo, setProtocolo] = useState('https://')
   const [vulnerabilities, setVulnerabilities] = useState<object[]>([])
   const [vulnerabilitiesFiltered, setVulnerabilitiesFiltered] = useState<object[]>([])
@@ -116,13 +115,11 @@ export default function Home() {
   }
 
   const getAlertsSummary = async () => {
-    setSummaryLoading(true)
     const { data } = await axios.get('/api/alerts/summary', {
       params: {
         url: `${protocolo}${url}`,
       },
     })
-    setSummaryLoading(false)
     setSummary(data)
   }
 
@@ -308,7 +305,7 @@ export default function Home() {
                   handleChangePage={handleChangePage}
                 />
               )}
-              <PdfGenerator modalState={modalState} setModalState={setModalState} data={{}} />
+              <PdfGenerator summary={summary} url={`${protocolo}${url}`} modalState={modalState} setModalState={setModalState} data={vulnerabilities} />
             </Box>
           </Box>
         ) : (

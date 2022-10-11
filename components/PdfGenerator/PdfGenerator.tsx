@@ -1,15 +1,19 @@
-import { Box, Button, Modal, Typography } from '@mui/material';
-import React, { useRef } from 'react'
+import { Box, Button, Modal, Stack, Typography } from '@mui/material';
+import React, { useEffect, useRef } from 'react'
 import styles from './PdfGenerator.module.scss'
 import Pdf from "react-to-pdf";
+import { RiskLabel } from '../RiskLabel/RiskLabel';
+import { ConstructionOutlined } from '@mui/icons-material';
 
 interface Idata {
     data: any;
     modalState: boolean;
     setModalState: (newValue: boolean) => void;
+    url: string;
+    summary: any;
 }
 
-export const PdfGenerator = ({ data, modalState, setModalState }: Idata) => {
+export const PdfGenerator = ({ data, modalState, setModalState, url, summary }: Idata) => {
     const ref = useRef<HTMLDivElement>(null);
     const handleClose = () => setModalState(false);
 
@@ -21,23 +25,28 @@ export const PdfGenerator = ({ data, modalState, setModalState }: Idata) => {
         setTimeout(() => {
             document.getElementById('pdfView')!.style.height = '80vh';
         }, 1000)
-
     }
 
-    const RiskDetails = ({ risk }: any) => {
+    useEffect(() => {
+        console.log('data', data);
+    }, [data])
+
+    const RiskDetails = ({ vulnerabilities, idx }: any) => {
         return (
             <Box className={styles.bodyRisck}>
                 <Typography className={styles.title}>
-                    <Box component='strong'>{risk}</Box> - Lorem Ipsum is simply dummy text of the printing and typesetting industry
+                    {idx + 1} | {' '}
+                    <RiskLabel typeRisk={`${vulnerabilities.risk}`} />{' '} - {vulnerabilities.name}
                 </Typography>
                 <br />
                 <Typography className={styles.Descrição}>
-                    <Box component='strong'>Descrição:</Box> Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+                    <Box component='strong'>Descrição:</Box> {vulnerabilities.description}
                 </Typography>
                 <br />
                 <Typography className={styles.Solução}>
-                    <Box component='strong'>Solução:</Box> Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+                    <Box component='strong'>Solução:</Box> {vulnerabilities.solution}
                 </Typography>
+                <hr />
             </Box>
         )
     }
@@ -51,30 +60,55 @@ export const PdfGenerator = ({ data, modalState, setModalState }: Idata) => {
                 aria-describedby="modal-modal-description"
             >
                 <Box className={styles.modal}>
-                    <Pdf targetRef={ref} filename="relatorio.pdf">
-                        {({ toPdf }: any) =>
-                            <Button
-                                variant="outlined"
-                                onClick={() => downloadPdf(toPdf)}
-                            >
-                                BAIXAR RELATÓRIO EM PDF
-                            </Button>
-                        }
-                    </Pdf>
+                    <Stack
+                        direction='row'
+                        justifyContent='space-between'
+                        sx={{
+                            margin: '0 24px',
+                            marginTop: '16px',
+                        }}
+                    >
+                        <Pdf scale={0.8} targetRef={ref} filename="relatorio.pdf">
+                            {({ toPdf }: any) =>
+                                <Button
+                                    variant="outlined"
+                                    onClick={() => downloadPdf(toPdf)}
+                                    className={styles.buttonDownloadPdf}
+                                >
+                                    BAIXAR RELATÓRIO EM PDF
+                                </Button>
+                            }
+                        </Pdf>
+                        <Button
+                            variant="outlined"
+                            onClick={handleClose}
+                            className={styles.buttonHandleClose}
+                        >
+                            Fechar
+                        </Button>
+                    </Stack>
                     <Box id='pdfView' className={styles.pdfContainer} ref={ref}>
-                        <Typography variant='h4'>
+                        <Typography sx={{ fontWeight: 'bold', fontSize: '24px' }}>
+                            <Box component='span' sx={{ fontSize: '28px', color: 'red' }}>
+                                {data.length}
+                            </Box>
+                            {" "}
                             VULNERABILIDADES ENCONTRADAS PARA O SITE
-                            “https://www.siteinstitucional.com/”
+                            {" "}
+                            {url}
                         </Typography>
-                        <Typography>
-                            Resumo dos riscos encontrados
+                        <Typography sx={{ marginTop: '16px', fontWeight: 'bold', fontSize: '20px' }}>
+                            Resumo dos riscos
                         </Typography>
-                        <Typography>
-                            Detalhe dos riscos encontrados
-                        </Typography>
-                        {['Alto Risco', 'Baixo Risco', 'Baixo Risco', 'Baixo Risco', 'Médio Risco', 'Informacional Risco'].map((risk, idx) => (
-                            <RiskDetails risk={risk} key={idx} />
-                        )
+                        <Stack direction='row' gap={2} sx={{ marginBottom: '16px' }}>
+                            <Box>Alto Risco: {summary.High}</Box>
+                            <Box>Médio Risco: {summary.Medium}</Box>
+                            <Box>Baixo Risco: {summary.Low}</Box>
+                            <Box>Risco Informacional: {summary.Informational}</Box>
+                        </Stack>
+                        <hr style={{ marginBottom: '24px' }} />
+                        {data.map((vulnerabilitie: any, idx: number) => (
+                            <RiskDetails idx={idx} key={idx} vulnerabilities={vulnerabilitie} />)
                         )}
                     </Box>
                 </Box>
