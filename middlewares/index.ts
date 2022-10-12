@@ -1,1 +1,1 @@
-export * from './rate-limit.middleware'
+export * from './apply-rate-limit.middleware'

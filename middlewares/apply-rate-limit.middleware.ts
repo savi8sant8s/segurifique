@@ -1,6 +1,7 @@
 import rateLimit from 'express-rate-limit'
 import slowDown from 'express-slow-down'
 import { NextApiRequest, NextApiResponse } from 'next'
+import { createMiddlewareDecorator } from 'next-api-decorators'
 
 const applyMiddleware =
   (middleware: any) => (request: NextApiRequest, response: NextApiResponse) =>
@@ -28,13 +29,12 @@ export const getRateLimitMiddlewares = ({
 
 const middlewares = getRateLimitMiddlewares()
 
-export async function applyRateLimit(
-  request: NextApiRequest,
-  response: NextApiResponse
-) {
-  await Promise.all(
-    middlewares
-      .map(applyMiddleware)
-      .map((middleware) => middleware(request, response))
-  )
-}
+export const ApplyRateLimit = createMiddlewareDecorator(
+  async (req: NextApiRequest, res: NextApiResponse) => {
+    await Promise.all(
+      middlewares
+        .map(applyMiddleware)
+        .map((middleware) => middleware(req, res))
+    )
+  }
+)

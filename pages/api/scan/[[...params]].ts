@@ -11,7 +11,9 @@ import {
   urlAllowed,
   urlsAlreadyScanned,
 } from '@/services'
+import { ApplyRateLimit } from '@/middlewares'
 
+@ApplyRateLimit()
 class ScanHandler {
   @Get()
   async scanURL(@Query('url') url: string) {

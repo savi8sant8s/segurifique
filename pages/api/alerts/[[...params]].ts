@@ -1,8 +1,8 @@
-import { createHandler, Get, Query, UseMiddleware } from 'next-api-decorators'
+import { createHandler, Get, Query } from 'next-api-decorators'
 import { getTranslatedAlert, urlAlerts, urlAlertsSummary } from '@/services'
-import { applyRateLimit } from '@/middlewares';
+import { ApplyRateLimit } from '@/middlewares';
 
-@UseMiddleware(applyRateLimit)
+@ApplyRateLimit()
 class AlertsHandler {
   @Get()
   async urlAlerts(@Query('url') url: string) {
