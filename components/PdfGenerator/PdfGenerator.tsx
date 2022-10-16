@@ -1,5 +1,5 @@
 import { Box, Button, Modal, Stack, Typography } from '@mui/material';
-import React, { useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import styles from './PdfGenerator.module.scss'
 import { RiskLabel } from '../RiskLabel/RiskLabel';
 
@@ -34,7 +34,7 @@ export const PdfGenerator = ({ data, modalState, setModalState, url, summary }: 
         return (
             <Box className={styles.bodyRisck}>
                 <Typography style={{ fontWeight: 'bold' }}>
-                    {idx + 1} | {' '}
+                    {idx + 1} | {'Risco '}
                     <RiskLabel typeRisk={`${vulnerabilities.risk}`} />{' '} - {vulnerabilities.name}
                 </Typography>
                 <br />
@@ -45,10 +45,18 @@ export const PdfGenerator = ({ data, modalState, setModalState, url, summary }: 
                 <Typography style={{ margin: '0', padding: '0' }}>
                     <Box component='strong'>Solução:</Box> {vulnerabilities.solution}
                 </Typography>
+                <br />
+                <Typography style={{ margin: '0', padding: '0' }}>
+                    <Box component='strong'>Url onde o risco foi encontrado:</Box> {vulnerabilities.url}
+                </Typography>
                 <hr />
             </Box>
         )
     }
+
+    useEffect(() => {
+        console.log(data)
+    }, [data])
 
     return (
         <Box>

@@ -40,7 +40,10 @@ export default function Home() {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
   const [modalState, setModalState] = useState(false)
-  const [modalLogin, setModalLogin] = useState(true)
+  const [modalLogin, setModalLogin] = useState(false)
+
+  const handleClose = () => setModalLogin(false)
+
   const handleDelete = () => {
     setChosenFilter('')
     setVulnerabilitiesFiltered([])
@@ -79,30 +82,32 @@ export default function Home() {
 
   const startScan = async () => {
     const validUrl = isValidUrl(`${protocolo}${url}`)
-    if (!validUrl) {
-      alert('URL inválida. Verifique e tente novamente.')
-    } else if (!googleUserToken()) {
+    if (googleUserToken() === null) {
       setModalLogin(true)
     } else {
-      clearFormAndInfo(true)
-      try {
-        const { data } = await axios.get(`/api/scan?url=${protocolo}${url}`, {
-          headers: {
-            Authorization: `Bearer ${googleUserToken()}`,
-          },
-        })
-        if (data.status === 'SCANNED') {
-          setProgress('100%')
-          setTimeout(async () => {
-            await getAlertsSummary()
-            await getFirstAlerts()
-          }, 1000)
-        } else {
-          setScanId(data.scan)
-          await getStatus(data.scan)
+      if (!validUrl) {
+        alert('URL inválida. Verifique e tente novamente.')
+      } else {
+        clearFormAndInfo(true)
+        try {
+          const { data } = await axios.get(`/api/scan?url=${protocolo}${url}`, {
+            headers: {
+              Authorization: `Bearer ${googleUserToken()}`,
+            },
+          })
+          if (data.status === 'SCANNED') {
+            setProgress('100%')
+            setTimeout(async () => {
+              await getAlertsSummary()
+              await getFirstAlerts()
+            }, 1000)
+          } else {
+            setScanId(data.scan)
+            await getStatus(data.scan)
+          }
+        } catch (error: any) {
+          alert(error.response.data.message)
         }
-      } catch (error: any) {
-        alert(error.response.data.message)
       }
     }
   }
@@ -181,15 +186,9 @@ export default function Home() {
 
   return (
     <Container className={styles.containerHome} maxWidth="lg">
-      <Modal open={modalLogin}>
-        <Box
-          padding={'1rem'}
-          display={'flex'}
-          alignItems={'center'}
-          justifyContent={'center'}
-          flexDirection={'column'}
-        >
-          <Typography style={{ color: 'white' }}>
+      <Modal open={modalLogin} onClose={handleClose}>
+        <Box className={styles.modalLogin}>
+          <Typography style={{ color: 'black' }}>
             Para poder escanear sites institucionais, é necessário estar logado:
           </Typography>
           <GoogleLogin onSuccess={handleLoginResponse} />
