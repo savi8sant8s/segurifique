@@ -11,6 +11,7 @@ import {
   IconButton,
   LinearProgress,
   MenuItem,
+  Modal,
   Stack,
   TextField,
   Tooltip,
@@ -18,7 +19,7 @@ import {
 } from '@mui/material'
 import { BarChartRace, Summary, TableCustom, PdfGenerator } from '@/components'
 import { isValidUrl, translateRisk } from '@/helpers'
-import { useGoogleLogin } from '@react-oauth/google'
+import { CredentialResponse, GoogleLogin } from '@react-oauth/google'
 
 export default function Home() {
   const [url, setUrl] = useState('')
@@ -38,18 +39,8 @@ export default function Home() {
   const [chosenFilter, setChosenFilter] = useState('')
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
-  const [searchComplete, setSearchComplete] = useState(true)
-  const [modalState, setModalState] = React.useState(false)
-  const googleLogin = useGoogleLogin({
-    onSuccess: async (response) => {
-      sessionStorage.setItem(
-        'segurifique-google-user-token',
-        response.access_token
-      )
-      await startScan()
-    },
-  })
-
+  const [modalState, setModalState] = useState(false)
+  const [modalLogin, setModalLogin] = useState(true)
   const handleDelete = () => {
     setChosenFilter('')
     setVulnerabilitiesFiltered([])
@@ -83,7 +74,7 @@ export default function Home() {
   }
 
   const googleUserToken = () => {
-    return sessionStorage.getItem('segurifique-google-user-token')
+    return window.sessionStorage.getItem('segurifique-google-user-token')
   }
 
   const startScan = async () => {
@@ -91,11 +82,15 @@ export default function Home() {
     if (!validUrl) {
       alert('URL inválida. Verifique e tente novamente.')
     } else if (!googleUserToken()) {
-      await googleLogin()
+      setModalLogin(true)
     } else {
       clearFormAndInfo(true)
       try {
-        const { data } = await axios.get(`/api/scan?url=${protocolo}${url}`)
+        const { data } = await axios.get(`/api/scan?url=${protocolo}${url}`, {
+          headers: {
+            Authorization: `Bearer ${googleUserToken()}`,
+          },
+        })
         if (data.status === 'SCANNED') {
           setProgress('100%')
           setTimeout(async () => {
@@ -113,7 +108,11 @@ export default function Home() {
   }
 
   const getStatus = async (scanId: string) => {
-    const { data } = await axios.get(`/api/scan/status/${scanId}`)
+    const { data } = await axios.get(`/api/scan/status/${scanId}`, {
+      headers: {
+        Authorization: `Bearer ${googleUserToken()}`,
+      },
+    })
     setProgress(data.status + '%')
     if (data.status === '100') {
       await getAlertsSummary()
@@ -128,6 +127,9 @@ export default function Home() {
       params: {
         url: `${protocolo}${url}`,
       },
+      headers: {
+        Authorization: `Bearer ${googleUserToken()}`,
+      },
     })
     setVulnerabilities(data)
   }
@@ -136,6 +138,9 @@ export default function Home() {
     const { data } = await axios.get('/api/alerts/summary', {
       params: {
         url: `${protocolo}${url}`,
+      },
+      headers: {
+        Authorization: `Bearer ${googleUserToken()}`,
       },
     })
     setSummary(data)
@@ -156,13 +161,40 @@ export default function Home() {
     setVulnerabilitiesFiltered(_vulnerabilitiesFiltered)
   }
 
+  const handleLoginResponse = (response: CredentialResponse) => {
+    sessionStorage.setItem(
+      'segurifique-google-user-token',
+      String(response.credential)
+    )
+    setModalLogin(false)
+  }
   useEffect(() => {
     if (chosenFilter == '') return
     filterTable()
   }, [chosenFilter])
 
+  useEffect(() => {
+    if (googleUserToken()) {
+      setModalLogin(false)
+    }
+  }, [])
+
   return (
     <Container className={styles.containerHome} maxWidth="lg">
+      <Modal open={modalLogin}>
+        <Box
+          padding={'1rem'}
+          display={'flex'}
+          alignItems={'center'}
+          justifyContent={'center'}
+          flexDirection={'column'}
+        >
+          <Typography style={{ color: 'white' }}>
+            Para poder escanear sites institucionais, é necessário estar logado:
+          </Typography>
+          <GoogleLogin onSuccess={handleLoginResponse} />
+        </Box>
+      </Modal>
       <Stack>
         <Box className={styles.sectionOne}>
           <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
