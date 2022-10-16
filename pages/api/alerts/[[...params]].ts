@@ -1,9 +1,8 @@
 import { createHandler, Get, Query } from 'next-api-decorators'
 import { getTranslatedAlert, urlAlerts, urlAlertsSummary } from '@/services'
-import { ApplyRateLimit, CheckGoogleAuthLogin } from '@/middlewares';
+import { CheckGoogleAuthLogin } from '@/middlewares'
 
 @CheckGoogleAuthLogin()
-@ApplyRateLimit()
 class AlertsHandler {
   @Get()
   async urlAlerts(@Query('url') url: string) {
