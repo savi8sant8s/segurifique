@@ -22,6 +22,9 @@ export const Header = () => {
                         <Link href="/sobre">
                             <Box component='a' title='Sobre'>Sobre</Box>
                         </Link>
+                        <Link href="/termos">
+                            <Box component='a' title='Termos de Uso'>Termos de Uso</Box>
+                        </Link>
                     </Box>
                 </Stack>
             </Container>

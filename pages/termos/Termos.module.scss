@@ -1,0 +1,26 @@
+.containerTermos {
+    min-height: calc(100vh - 105px) !important;
+    color: white;
+    background: rgba(197, 192, 192, 0.3);
+    padding: 2rem;
+    margin: 2rem;
+    text-align: justify;
+    border-radius: 1rem;
+
+    p {
+        margin-top: 0.5rem;
+    }
+
+    h2, h4 {
+        margin: 1rem 0rem;
+    }
+
+    section {
+        margin-left: 1rem;
+
+        p {
+            font-size: 0.875rem;
+        }
+    }
+}
+
