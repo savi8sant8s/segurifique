@@ -11,7 +11,9 @@ import {
   urlAllowed,
   urlsAlreadyScanned,
 } from '@/services'
+import { CheckGoogleAuthLogin } from '@/middlewares'
 
+@CheckGoogleAuthLogin()
 class ScanHandler {
   @Get()
   async scanURL(@Query('url') url: string) {

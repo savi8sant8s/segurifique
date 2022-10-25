@@ -11,6 +11,7 @@ import {
   IconButton,
   LinearProgress,
   MenuItem,
+  Modal,
   Stack,
   TextField,
   Tooltip,
@@ -18,6 +19,7 @@ import {
 } from '@mui/material'
 import { BarChartRace, Summary, TableCustom, PdfGenerator } from '@/components'
 import { isValidUrl, translateRisk } from '@/helpers'
+import { CredentialResponse, GoogleLogin } from '@react-oauth/google'
 
 export default function Home() {
   const [url, setUrl] = useState('')
@@ -31,17 +33,21 @@ export default function Home() {
   })
   const [protocolo, setProtocolo] = useState('https://')
   const [vulnerabilities, setVulnerabilities] = useState<object[]>([])
-  const [vulnerabilitiesFiltered, setVulnerabilitiesFiltered] = useState<object[]>([])
+  const [vulnerabilitiesFiltered, setVulnerabilitiesFiltered] = useState<
+    object[]
+  >([])
   const [chosenFilter, setChosenFilter] = useState('')
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
-  const [searchComplete, setSearchComplete] = useState(true)
-  const [modalState, setModalState] = React.useState(false);
+  const [modalState, setModalState] = useState(false)
+  const [modalLogin, setModalLogin] = useState(false)
+
+  const handleClose = () => setModalLogin(false)
 
   const handleDelete = () => {
-    setChosenFilter('');
-    setVulnerabilitiesFiltered([]);
-  };
+    setChosenFilter('')
+    setVulnerabilitiesFiltered([])
+  }
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage)
@@ -70,32 +76,48 @@ export default function Home() {
     setPage(0)
   }
 
+  const googleUserToken = () => {
+    return window.sessionStorage.getItem('segurifique-google-user-token')
+  }
+
   const startScan = async () => {
-    const validUrl = isValidUrl(`${protocolo}${url}`);
-    if (!validUrl) {
-      alert('URL inválida. Verifique e tente novamente.')
+    const validUrl = isValidUrl(`${protocolo}${url}`)
+    if (googleUserToken() === null) {
+      setModalLogin(true)
     } else {
-      clearFormAndInfo(true)
-      try {
-        const { data } = await axios.get(`/api/scan?url=${protocolo}${url}`)
-        if (data.status === 'SCANNED') {
-          setProgress('100%')
-          setTimeout(async () => {
-            await getAlertsSummary()
-            await getFirstAlerts()
-          }, 1000)
-        } else {
-          setScanId(data.scan)
-          await getStatus(data.scan)
+      if (!validUrl) {
+        alert('URL inválida. Verifique e tente novamente.')
+      } else {
+        clearFormAndInfo(true)
+        try {
+          const { data } = await axios.get(`/api/scan?url=${protocolo}${url}`, {
+            headers: {
+              Authorization: `Bearer ${googleUserToken()}`,
+            },
+          })
+          if (data.status === 'SCANNED') {
+            setProgress('100%')
+            setTimeout(async () => {
+              await getAlertsSummary()
+              await getFirstAlerts()
+            }, 1000)
+          } else {
+            setScanId(data.scan)
+            await getStatus(data.scan)
+          }
+        } catch (error: any) {
+          alert(error.response.data.message)
         }
-      } catch (error: any) {
-        alert(error.response.data.message)
       }
     }
   }
 
   const getStatus = async (scanId: string) => {
-    const { data } = await axios.get(`/api/scan/status/${scanId}`)
+    const { data } = await axios.get(`/api/scan/status/${scanId}`, {
+      headers: {
+        Authorization: `Bearer ${googleUserToken()}`,
+      },
+    })
     setProgress(data.status + '%')
     if (data.status === '100') {
       await getAlertsSummary()
@@ -110,6 +132,9 @@ export default function Home() {
       params: {
         url: `${protocolo}${url}`,
       },
+      headers: {
+        Authorization: `Bearer ${googleUserToken()}`,
+      },
     })
     setVulnerabilities(data)
   }
@@ -119,33 +144,57 @@ export default function Home() {
       params: {
         url: `${protocolo}${url}`,
       },
+      headers: {
+        Authorization: `Bearer ${googleUserToken()}`,
+      },
     })
     setSummary(data)
   }
 
   const removeHttp = (url: string) => {
-    return url.replace(/^https?:\/\//, '');
+    return url.replace(/^https?:\/\//, '')
   }
 
   const numberOfVulnerabilitiesFound = () => {
-    return summary.High + summary.Informational + summary.Low + summary.Medium;
+    return summary.High + summary.Informational + summary.Low + summary.Medium
   }
 
   const filterTable = () => {
-    // console.log(vulnerabilities)
-    const _vulnerabilitiesFiltered = vulnerabilities.filter((teste: any) => teste.risk === chosenFilter);
-    setVulnerabilitiesFiltered(_vulnerabilitiesFiltered);
+    const _vulnerabilitiesFiltered = vulnerabilities.filter(
+      (teste: any) => teste.risk === chosenFilter
+    )
+    setVulnerabilitiesFiltered(_vulnerabilitiesFiltered)
   }
 
+  const handleLoginResponse = (response: CredentialResponse) => {
+    sessionStorage.setItem(
+      'segurifique-google-user-token',
+      String(response.credential)
+    )
+    setModalLogin(false)
+  }
   useEffect(() => {
-    if (chosenFilter == '') return;
-    filterTable();
+    if (chosenFilter == '') return
+    filterTable()
   }, [chosenFilter])
+
+  useEffect(() => {
+    if (googleUserToken()) {
+      setModalLogin(false)
+    }
+  }, [])
 
   return (
     <Container className={styles.containerHome} maxWidth="lg">
+      <Modal open={modalLogin} onClose={handleClose}>
+        <Box className={styles.modalLogin}>
+          <Typography style={{ color: 'black' }}>
+            Para poder escanear sites institucionais, é necessário estar logado:
+          </Typography>
+          <GoogleLogin onSuccess={handleLoginResponse} />
+        </Box>
+      </Modal>
       <Stack>
-
         <Box className={styles.sectionOne}>
           <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
             VERIFICADOR AUTOMÁTICO DE{' '}
@@ -182,10 +231,14 @@ export default function Home() {
                 select
                 label="Protocolo"
                 value={protocolo}
-                onChange={e => setProtocolo(e.target.value)}
+                onChange={(e) => setProtocolo(e.target.value)}
               >
-                <MenuItem key='https://' value='https://'>https://</MenuItem>
-                <MenuItem key='http://' value='http://'>http://</MenuItem>
+                <MenuItem key="https://" value="https://">
+                  https://
+                </MenuItem>
+                <MenuItem key="http://" value="http://">
+                  http://
+                </MenuItem>
               </TextField>
               <TextField
                 size="medium"
@@ -196,9 +249,7 @@ export default function Home() {
                 disabled={scanId !== '' && progress !== '100%'}
                 placeholder="www.siteinstitucional.br"
                 value={removeHttp(url)}
-                onChange={(e) =>
-                  setUrl(removeHttp(e.target.value))
-                }
+                onChange={(e) => setUrl(removeHttp(e.target.value))}
               />
               <Button
                 variant="outlined"
@@ -207,23 +258,30 @@ export default function Home() {
                 className={styles.buttonVerificar}
               >
                 {scanId !== '' && progress !== '100%' ? (
-                  <CircularProgress size="1rem" sx={{ color: 'grey.500' }} color="inherit" />
-                ) : 'Verificar'}
+                  <CircularProgress
+                    size="1rem"
+                    sx={{ color: 'grey.500' }}
+                    color="inherit"
+                  />
+                ) : (
+                  'Verificar'
+                )}
               </Button>
             </Box>
             <Typography variant="body1" className={styles.information}>
               - Buscaremos por vulnerabilidades através do
               <Box
-                component='a'
+                component="a"
                 sx={{ textDecoration: 'none' }}
                 href="https://www.zaproxy.org/"
               >
                 {' '}
                 OWASP ZAP
               </Box>
-              , o <Box component='strong'>web scanner mais utilizado do mundo</Box>.<br />-
-              Gratuito, de código aberto e ativamente mantido por uma equipe
-              internacional de voluntários.
+              , o{' '}
+              <Box component="strong">web scanner mais utilizado do mundo</Box>.
+              <br />- Gratuito, de código aberto e ativamente mantido por uma
+              equipe internacional de voluntários.
             </Typography>
             <Box sx={{ width: '100%' }} className={styles.progressBar}>
               <LinearProgress
@@ -231,7 +289,9 @@ export default function Home() {
                 variant="determinate"
                 value={Number(progress.slice(0, -1))}
               />
-              <Box component='span' style={{ marginLeft: '1rem' }}>{progress}</Box>
+              <Box component="span" style={{ marginLeft: '1rem' }}>
+                {progress}
+              </Box>
             </Box>
           </Box>
         </Box>
@@ -243,11 +303,11 @@ export default function Home() {
               {vulnerabilities.length > 0 && (
                 <Typography>
                   A verificação conseguiu encontrar cerca de
-                  <Box component='strong'>{` ${numberOfVulnerabilitiesFound()} `}</Box>
-                  vunerabilidades.
-                  Abaixo, um gráfico categorizado pelo grau de risco
-                  de todas as vunerabildiades encontradas. Para filtrar a tabela,
-                  clique no respectivo grau de risco mostrado no gráfico.
+                  <Box component="strong">{` ${numberOfVulnerabilitiesFound()} `}</Box>
+                  vunerabilidades. Abaixo, um gráfico categorizado pelo grau de
+                  risco de todas as vunerabildiades encontradas. Para filtrar a
+                  tabela, clique no respectivo grau de risco mostrado no
+                  gráfico.
                 </Typography>
               )}
               <BarChartRace
@@ -257,11 +317,12 @@ export default function Home() {
               />
               <br />
               {vulnerabilities.length > 0 && (
-                <Stack direction='row'
+                <Stack
+                  direction="row"
                   sx={{
                     alignItems: 'center',
                     marginBottom: '1rem',
-                    justifyContent: 'space-between'
+                    justifyContent: 'space-between',
                   }}
                 >
                   <Button
@@ -305,7 +366,13 @@ export default function Home() {
                   handleChangePage={handleChangePage}
                 />
               )}
-              <PdfGenerator summary={summary} url={`${protocolo}${url}`} modalState={modalState} setModalState={setModalState} data={vulnerabilities} />
+              <PdfGenerator
+                summary={summary}
+                url={`${protocolo}${url}`}
+                modalState={modalState}
+                setModalState={setModalState}
+                data={vulnerabilities}
+              />
             </Box>
           </Box>
         ) : (

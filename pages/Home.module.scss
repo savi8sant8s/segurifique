@@ -125,3 +125,19 @@
 .linearProgress>* {
     background-color: #343434;
 }
+
+.modalLogin {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    box-shadow: 24;
+    min-height: 15rem;
+    border-radius: 24px;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}

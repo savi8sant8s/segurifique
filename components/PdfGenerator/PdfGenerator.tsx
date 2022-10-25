@@ -1,9 +1,7 @@
 import { Box, Button, Modal, Stack, Typography } from '@mui/material';
 import React, { useEffect, useRef } from 'react'
 import styles from './PdfGenerator.module.scss'
-import Pdf from "react-to-pdf";
 import { RiskLabel } from '../RiskLabel/RiskLabel';
-import { ConstructionOutlined } from '@mui/icons-material';
 
 interface Idata {
     data: any;
@@ -17,39 +15,48 @@ export const PdfGenerator = ({ data, modalState, setModalState, url, summary }: 
     const ref = useRef<HTMLDivElement>(null);
     const handleClose = () => setModalState(false);
 
-    const downloadPdf = (toPdf: any) => {
-        if (document.getElementById('pdfView') === null) return;
-        console.log('document.getElementById', document.getElementById('pdfView'));
-        document.getElementById('pdfView')!.style.height = 'auto';
-        toPdf();
-        setTimeout(() => {
-            document.getElementById('pdfView')!.style.height = '80vh';
-        }, 1000)
-    }
+    function printDiv(divId: string, title: string) {
+        const mywindow = window.open('', 'PRINT', 'height=650,width=900,top=100,left=150');
 
-    useEffect(() => {
-        console.log('data', data);
-    }, [data])
+        mywindow!.document.write(`<html><head><title>${title}</title>`);
+        mywindow!.document.write('</head><body >');
+        mywindow!.document.write(document.getElementById(divId)!.innerHTML);
+        mywindow!.document.write('</body></html>');
+        mywindow!.document.close();
+        mywindow!.focus();
+        mywindow!.print();
+        mywindow!.close();
+
+        return true;
+    }
 
     const RiskDetails = ({ vulnerabilities, idx }: any) => {
         return (
             <Box className={styles.bodyRisck}>
-                <Typography className={styles.title}>
-                    {idx + 1} | {' '}
+                <Typography style={{ fontWeight: 'bold' }}>
+                    {idx + 1} | {'Risco '}
                     <RiskLabel typeRisk={`${vulnerabilities.risk}`} />{' '} - {vulnerabilities.name}
                 </Typography>
                 <br />
-                <Typography className={styles.Descrição}>
+                <Typography style={{ margin: '0', padding: '0' }}>
                     <Box component='strong'>Descrição:</Box> {vulnerabilities.description}
                 </Typography>
                 <br />
-                <Typography className={styles.Solução}>
+                <Typography style={{ margin: '0', padding: '0' }}>
                     <Box component='strong'>Solução:</Box> {vulnerabilities.solution}
+                </Typography>
+                <br />
+                <Typography style={{ margin: '0', padding: '0' }}>
+                    <Box component='strong'>Url onde o risco foi encontrado:</Box> {vulnerabilities.url}
                 </Typography>
                 <hr />
             </Box>
         )
     }
+
+    useEffect(() => {
+        console.log(data)
+    }, [data])
 
     return (
         <Box>
@@ -68,17 +75,13 @@ export const PdfGenerator = ({ data, modalState, setModalState, url, summary }: 
                             marginTop: '16px',
                         }}
                     >
-                        <Pdf scale={0.8} targetRef={ref} filename="relatorio.pdf">
-                            {({ toPdf }: any) =>
-                                <Button
-                                    variant="outlined"
-                                    onClick={() => downloadPdf(toPdf)}
-                                    className={styles.buttonDownloadPdf}
-                                >
-                                    BAIXAR RELATÓRIO EM PDF
-                                </Button>
-                            }
-                        </Pdf>
+                        <Button
+                            variant="outlined"
+                            onClick={() => printDiv('pdfView', 'RelatorioCompleto')}
+                            className={styles.buttonDownloadPdf}
+                        >
+                            BAIXAR RELATÓRIO EM PDF
+                        </Button>
                         <Button
                             variant="outlined"
                             onClick={handleClose}
@@ -88,8 +91,13 @@ export const PdfGenerator = ({ data, modalState, setModalState, url, summary }: 
                         </Button>
                     </Stack>
                     <Box id='pdfView' className={styles.pdfContainer} ref={ref}>
-                        <Typography sx={{ fontWeight: 'bold', fontSize: '24px' }}>
-                            <Box component='span' sx={{ fontSize: '28px', color: 'red' }}>
+                        <Typography
+                            style={{
+                                fontWeight: 'bold',
+                                fontSize: '24px'
+                            }}
+                        >
+                            <Box component='span' style={{ fontSize: '28px', color: 'red' }}>
                                 {data.length}
                             </Box>
                             {" "}
@@ -97,14 +105,26 @@ export const PdfGenerator = ({ data, modalState, setModalState, url, summary }: 
                             {" "}
                             {url}
                         </Typography>
-                        <Typography sx={{ marginTop: '16px', fontWeight: 'bold', fontSize: '20px' }}>
+                        <Typography
+                            style={{
+                                marginTop: '16px',
+                                fontWeight: 'bold',
+                                fontSize: '20px'
+                            }}
+                        >
                             Resumo dos riscos
                         </Typography>
-                        <Stack direction='row' gap={2} sx={{ marginBottom: '16px' }}>
-                            <Box>Alto Risco: {summary.High}</Box>
-                            <Box>Médio Risco: {summary.Medium}</Box>
-                            <Box>Baixo Risco: {summary.Low}</Box>
-                            <Box>Risco Informacional: {summary.Informational}</Box>
+                        <Stack
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                marginBottom: '16px'
+                            }}
+                        >
+                            <Box style={{ marginRight: '16px' }}>Alto Risco: {summary.High}</Box>
+                            <Box style={{ marginRight: '16px' }}>Médio Risco: {summary.Medium}</Box>
+                            <Box style={{ marginRight: '16px' }}>Baixo Risco: {summary.Low}</Box>
+                            <Box style={{ marginRight: '16px' }}>Risco Informacional: {summary.Informational}</Box>
                         </Stack>
                         <hr style={{ marginBottom: '24px' }} />
                         {data.map((vulnerabilitie: any, idx: number) => (

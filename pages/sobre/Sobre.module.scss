@@ -1,3 +1,30 @@
 .containerAbout {
     min-height: calc(100vh - 105px) !important;
+    padding: 1rem;
+    text-align: justify;
+}
+
+.containerAbout .sectionOne {
+    background-color: #343434;
+    padding: 24px 48px;
+    border-radius: 24px;
+    margin: 24px 0;
+    color: #ffffff;
+
+    p {
+        margin-top: 0.5rem;
+    }
+
+    h2,
+    h4 {
+        margin: 1rem 0rem;
+    }
+
+    section {
+        margin-left: 1rem;
+
+        p {
+            font-size: 0.875rem;
+        }
+    }
 }
