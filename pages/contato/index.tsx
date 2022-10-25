@@ -26,7 +26,7 @@ export default function Contact() {
                 </Stack>
                 <br />
                 <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-                    <Avatar sizes='30' alt="Victor" src="/static/images/avatar/1.jpg" sx={{ width: 56, height: 56 }} />
+                    <Avatar sizes='30' alt="Victor" src="https://avatars.githubusercontent.com/u/8702520?v=4" sx={{ width: 56, height: 56 }} />
                     <Box>
                         <h3>Victor Ferreira</h3>
                         <p>Professor e orientador</p>

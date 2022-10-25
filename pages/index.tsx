@@ -166,23 +166,19 @@ export default function Home() {
     setVulnerabilitiesFiltered(_vulnerabilitiesFiltered)
   }
 
-  const handleLoginResponse = (response: CredentialResponse) => {
+  const handleLoginResponse = async (response: CredentialResponse) => {
     sessionStorage.setItem(
       'segurifique-google-user-token',
       String(response.credential)
     )
     setModalLogin(false)
+    await startScan()
   }
+
   useEffect(() => {
     if (chosenFilter == '') return
     filterTable()
   }, [chosenFilter])
-
-  useEffect(() => {
-    if (googleUserToken()) {
-      setModalLogin(false)
-    }
-  }, [])
 
   return (
     <Container className={styles.containerHome} maxWidth="lg">

@@ -24,8 +24,11 @@ export const PdfGenerator = ({ data, modalState, setModalState, url, summary }: 
         mywindow!.document.write('</body></html>');
         mywindow!.document.close();
         mywindow!.focus();
-        mywindow!.print();
-        mywindow!.close();
+
+        setTimeout(() => {
+            mywindow!.print();
+            mywindow!.close();
+        }, 250)
 
         return true;
     }
@@ -53,10 +56,6 @@ export const PdfGenerator = ({ data, modalState, setModalState, url, summary }: 
             </Box>
         )
     }
-
-    useEffect(() => {
-        console.log(data)
-    }, [data])
 
     return (
         <Box>
@@ -91,6 +90,20 @@ export const PdfGenerator = ({ data, modalState, setModalState, url, summary }: 
                         </Button>
                     </Stack>
                     <Box id='pdfView' className={styles.pdfContainer} ref={ref}>
+                        <Stack sx={{ justifyContent: 'center', textAlign: 'center', alignItems: 'center' }}>
+                            <Box
+                                component='img'
+                                sx={{
+                                    height: 65,
+                                    width: 301,
+                                    maxHeight: { xs: 233, md: 167 },
+                                    maxWidth: { xs: 350, md: 250 },
+                                    textAlign: 'center'
+                                }}
+                                alt='logo'
+                                src='https://i.imgur.com/7HlVYme.png'
+                            />
+                        </Stack>
                         <Typography
                             style={{
                                 fontWeight: 'bold',
