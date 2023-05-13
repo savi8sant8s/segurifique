@@ -51,9 +51,9 @@ export const TableCustom = ({
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
-              {columns.map((column) => (
+              {columns.map((column, index) => (
                 <TableCell
-                  key={column.id}
+                  key={index}
                   style={{
                     minWidth: column.minWidth,
                     backgroundColor: '#343434',
