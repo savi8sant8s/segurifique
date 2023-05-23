@@ -9,9 +9,9 @@ Obs.: Owasp ZAP roda na porta 8080
 ------
 - Adicionar variáveis de ambiente:
 ```env
-ZAP_API_KEY=s1g0o2iudmp5hdpdjniq8vjba2
+ZAP_API_KEY=
 ZAP_PROXY=http://localhost:8080
-NEXT_PUBLIC_GOOGLE_CLIENT_ID=856133900449-md74sdgjch51o0ap64qdu9tpemju6def.apps.googleusercontent.com
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=
 ```
 - Executar: npm i (para instalar as dependências)
 - Executar: npm run dev (para iniciar a aplicação em desenvolvimento)
